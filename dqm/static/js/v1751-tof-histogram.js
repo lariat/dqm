@@ -40,6 +40,7 @@
 
   var bar = svg.selectAll(".bar");
 
+  // Set title
   svg.append("text")
       .attr("x", (width / 2))
       .attr("y", 0 - (margin.top / 2))
