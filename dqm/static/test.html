@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>DQM &mdash; Test</title>
+
+    <style>
+      body {
+        font: 10px sans-serif;
+      }
+      .bar {
+        fill: steelblue;
+        shape-rendering: crispEdges;
+      }
+      .bar text {
+        fill: #000;
+      }
+      .axis path, .axis line {
+        fill: none;
+        stroke: #000;
+        shape-rendering: crispEdges;
+      }
+      .title {
+        font-size: 14px;
+      }
+    </style>
+
+  </head>
+  <body>
+
+  <div class="container">
+    <div id="histogram"></div>
+  </div>
+
+  <script src="/static/lib/jquery/js/jquery.min.js"></script>
+  <script src="/static/lib/d3/js/d3.min.js"></script>
+
+  <script>
+    //var data = [],
+    //    t = 0,
+    //    timeout;
+    //function loadNext() {
+    //    $.getJSON("/json?name=johnnyho&email=johnnyho@uchicago.edu", function(datum) {
+    //        data.push({time: ++t, value: datum});
+    //        //redraw();
+    //        console.log(datum)
+    //        timeout = setTimeout(loadNext, 5000);
+    //    });
+    //}
+    //loadNext();
+  </script>
+
+  <script>
+    (function() {
+
+      var json_url = "/json_dispatch?name=histogram";
+
+      // Set the dimensions of the canvas / graph
+      var margin = {top: 60, right: 70, bottom: 30, left: 50},
+          width = 960 - margin.left - margin.right,
+          height = 500 - margin.top - margin.bottom;
+
+      // Set the ranges
+      var x = d3.scale.linear().range([0, width]);
+      var y = d3.scale.linear().range([height, 0]);
+
+      // Define the axes
+      var x_axis = d3.svg.axis().scale(x).orient("bottom");
+      var y_axis = d3.svg.axis().scale(y).orient("left");
+
+      var svg = d3.select("#histogram").append("svg")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      var bar = svg.selectAll(".bar");
+
+      d3.json(json_url, function(json) {
+
+        var bins = json.data.map(function (d) { return +d.bin; })
+        var counts = json.data.map(function (d) { return +d.count; })
+        var min_bin = json.min_bin;
+        var max_bin = json.max_bin;
+        var bin_step = json.bin_step;
+        var data = [];
+
+        for (var bin in bins) {
+          data.push({"x": bins[bin], "y": counts[bin]});
+        }
+
+        var bin_array = [];
+        for (var i = min_bin; i <= max_bin + bin_step; i += bin_step) {
+          bin_array.push(i);
+        }
+
+        var bin_ticks = [];
+        for (var i = min_bin; i <= max_bin + bin_step; i += bin_step) {
+          bin_ticks.push(i);
+        }
+
+        console.log(bin_ticks)
+
+        var bin_width = parseFloat(width / (bin_array.length - 1)) - 1;
+
+        console.log(bins)
+        console.log(counts)
+        console.log(json.data)
+        console.log(data)
+
+        // Scale the range of the data
+        x.domain([min_bin, max_bin + bin_step]);
+        y.domain([0, d3.max(data, function(d) { return d.y; })]);
+
+        // Add the bars
+        bar.data(data)
+            .enter()
+            .append("rect")
+            .attr("class", "bar")
+            .attr("x", function(d) { return x(d.x); })
+            .attr("width", bin_width)
+            .attr("y", function(d) { return y(d.y); })
+            .attr("height", function(d) { return height - y(d.y); });
+
+        // Set the x-axis ticks
+        x_axis.tickValues(bin_ticks);
+
+        // Add the x-axis
+        svg.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + height + ")")
+            .call(x_axis);
+
+        // Add the y-axis
+        svg.append("g")
+            .attr("class", "y axis")
+            //.attr("transform", "translate(0," + height + ")")
+            .call(y_axis);
+
+      })
+
+      function update() {
+
+        // Get the data again
+        d3.json(json_url, function(json) {
+
+          var bins = json.data.map(function (d) { return +d.bin; })
+          var counts = json.data.map(function (d) { return +d.count; })
+          var min_bin = json.min_bin;
+          var max_bin = json.max_bin;
+          var bin_step = json.bin_step;
+          var data = [];
+
+          for (var bin in bins) {
+            data.push({"x": bins[bin], "y": counts[bin]});
+          }
+
+          var bin_array = [];
+          for (var i = min_bin; i <= max_bin + bin_step; i += bin_step) {
+            bin_array.push(i);
+          }
+
+          var bin_ticks = [];
+          for (var i = min_bin; i <= max_bin + bin_step; i += bin_step) {
+            bin_ticks.push(i);
+          }
+
+          var bin_width = parseFloat(width / (bin_array.length - 1)) - 1;
+
+          // Scale the range of the data again 
+          x.domain([min_bin, max_bin + bin_step]);
+          y.domain([0, d3.max(data, function(d) { return d.y; })]);
+
+          // Make the changes
+          var selection = svg.selectAll(".bar")
+               .data(data);
+
+          // new data:
+          selection.enter()
+              .append("rect")
+              .attr("class", "bar")
+              .attr("x", function(d) { return x(d.x); })
+              .attr("width", bin_width)
+              .attr("y", function(d) { return y(d.y); })
+              .attr("height", function(d) { return height - y(d.y); });
+          // removed data:
+          selection.exit().remove();
+          // updated data:
+          selection
+              .transition()
+              .duration(750)
+              .attr("y", function(d) { return y(d.y); })
+              .attr("height", function(d) { return height - y(d.y); });
+
+          // change the x-axis
+          svg.select(".x.axis")
+              .transition()
+              .duration(750)
+              .call(x_axis);
+
+          // change the y-axis
+          svg.select(".y.axis") // change the y axis
+              .transition()
+              .duration(750)
+              .call(y_axis);
+
+        });
+      }
+
+      //var interval = setInterval(function() {
+      //  update();
+      //}, 5000);
+
+      var timeout;
+      function load_next() {
+        update();
+        timeout = setTimeout(load_next, 5000);
+      }
+
+      load_next();
+
+    }) ();
+  </script>
+
+  </body>
+</html>
