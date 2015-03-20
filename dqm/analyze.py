@@ -45,13 +45,54 @@ def parse_run_spill(file_path):
     spill = token_list[-1].split(".")[-2]
     return run, spill
 
+def get_spill_info(file_path):
+    """
+    Returns the following spill information from the
+    spillTrailer fragment:
+
+        - runNumber
+        - spillNumber
+        - timeStamp (Unix time from wall clock)
+
+    Returns (run_number, spill_number, time_stamp)
+
+    """
+
+    try:
+        spill_trailer = rnp.root2array(
+            file_path, 'DataQuality/spillTrailer',
+            branches=['runNumber', 'spillNumber', 'timeStamp']
+            )
+
+        run_number = np.unique(spill_trailer['runNumber'])
+        spill_number = np.unique(spill_trailer['spillNumber'])
+        time_stamp = np.unique(spill_trailer['timeStamp'])
+
+        if run_number.size != 1:
+            print "Multiple run numbers detected!"
+            print run_number
+
+        if spill_number.size != 1:
+            print "Multiple spill numbers detected!"
+            print spill_number
+
+        if time_stamp.size != 1:
+            print "Multiple time stamps detected!"
+            print time_stamp
+
+        return run_number[0], spill_number[0], time_stamp[0]
+
+    except:
+        print "Cannot get spillTrailer information!"
+        return 0, 0, 0
+
 def test_root_file(file_path):
     """
     Tests the input ROOT file. Returns a tuple of flags for
     the different trees. The flag for a good tree is `True`;
     the flag for a bad tree is `False`.
 
-    (v1740_ok, v1751_ok, mwpc_ok, wut_ok)
+    Returns (v1740_ok, v1751_ok, mwpc_ok, wut_ok)
 
     """
 
@@ -111,6 +152,9 @@ except:
 # parse run number and spill number from file name
 run, spill = parse_run_spill(file_path)
 
+# get run number, spill number, and time stamp
+run_number, spill_number, time_stamp = get_spill_info(file_path)
+
 # set redis key timeout to 2 weeks for now
 key_timeout = 604800  # each count is 1 second
 
@@ -133,11 +177,32 @@ if (v1740_ok, v1751_ok, mwpc_ok, wut_ok) == (False, False, False, False):
     redis.setex(analyze_key, exit_status, key_timeout)
     sys.exit(exit_status)
 
+#/////////////////////////////////////////////////////////////
+# CAEN V1740
+#/////////////////////////////////////////////////////////////
+
+if v1740_ok:
+    # set keys
+    v1740_trigger_histogram_key = key_prefix + 'v1740/trigger-histogram'
+
+    # if keys already exists in redis, delete the existing keys
+    redis.delete(v1740_trigger_histogram_key)
+
+else:
+    # tell redis that this v1740 tree is bad
+    pass
+
+#/////////////////////////////////////////////////////////////
+# CAEN V1751
+#/////////////////////////////////////////////////////////////
+
 if v1751_ok:
-    # set key
+    # set keys
+    v1751_trigger_histogram_key = key_prefix + 'v1751/trigger-histogram'
     v1751_tof_histogram_key = key_prefix + 'v1751/tof-histogram'
 
-    # if key already exists in redis, delete the existing key
+    # if keys already exists in redis, delete the existing keys
+    redis.delete(v1751_trigger_histogram_key)
     redis.delete(v1751_tof_histogram_key)
 
     # get array of TOF values from CAEN V1751 waveforms
@@ -158,17 +223,21 @@ else:
     # tell redis that this v1751 tree is bad
     pass
 
+#/////////////////////////////////////////////////////////////
+# MWPCs
+#/////////////////////////////////////////////////////////////
+
 if mwpc_ok:
+    # set keys
+    mwpc_trigger_histogram_key = key_prefix + 'mwpc/trigger-histogram'
     # set list of keys for the 16 TDCs of the MWPCs
-    #mwpc_tdc_histogram_keys = [
-    #    key_prefix + 'mwpc/tdc-{}-histogram'.format(i) for i in xrange(1, 17)
-    #    ]
     mwpc_tdc_histogram_keys = [
         key_prefix + 'mwpc/tdc-{}-histogram'.format(tdc_index+1)
         for tdc_index in xrange(0, 16)
         ]
 
     # if keys already exists in redis, delete the existing keys
+    redis.delete(mwpc_trigger_histogram_key)
     redis.delete(*mwpc_tdc_histogram_keys)
 
     # get array of relative TDC hit timing
@@ -190,6 +259,21 @@ if mwpc_ok:
 
 else:
     # tell redis that this mwpc tree is bad
+    pass
+
+#/////////////////////////////////////////////////////////////
+# WUT
+#/////////////////////////////////////////////////////////////
+
+if wut_ok:
+    # set keys
+    wut_trigger_histogram_key = key_prefix + 'wut/trigger-histogram'
+
+    # if keys already exists in redis, delete the existing keys
+    redis.delete(wut_trigger_histogram_key)
+
+else:
+    # tell redis that this wut tree is bad
     pass
 
 # tell redis that we are done analyzing this file
