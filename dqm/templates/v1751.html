@@ -6,8 +6,25 @@
     <div class="container">
 
       <div class="panel panel-default">
-        <div class="panel-body">
+        <div class="panel-body text-center">
+          Nothing here yet!
           <div id="v1751-histograms"></div>
+        </div>
+      </div>
+
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">V1751 board 0 pedestals</h3>
+        </div>
+        <div class="panel-body text-center">
+          <div id="v1751-board-0-channel-0-pedestal-histogram"></div>
+          <div id="v1751-board-0-channel-1-pedestal-histogram"></div>
+          <div id="v1751-board-0-channel-2-pedestal-histogram"></div>
+          <div id="v1751-board-0-channel-3-pedestal-histogram"></div>
+          <div id="v1751-board-0-channel-4-pedestal-histogram"></div>
+          <div id="v1751-board-0-channel-5-pedestal-histogram"></div>
+          <div id="v1751-board-0-channel-6-pedestal-histogram"></div>
+          <div id="v1751-board-0-channel-7-pedestal-histogram"></div>
         </div>
       </div>
 
@@ -16,7 +33,7 @@
 {% include 'scripts.html' %}
 
     {#
-    <script src="{{ url_for('static', filename='js/v1751.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/v1751-pedestal-histograms.js') }}"></script>
     #}
 
 {% endblock %}
