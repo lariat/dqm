@@ -149,9 +149,6 @@ except:
     print "Exiting with exit status {}".format(exit_status)
     sys.exit(exit_status)
 
-# parse run number and spill number from file name; OBSOLETE
-#run, spill = parse_run_spill(file_path)
-
 # get run number, spill number, and time stamp
 run_number, spill_number, time_stamp = get_spill_info(file_path)
 
