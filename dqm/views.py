@@ -70,6 +70,7 @@ def json():
     if query == 'trigger-histogram':
         device = request.args.get('device', None)
         board_id = request.args.get('board_id', -1)
+        #integral = request.args.get('integral', False)
         device_key = None
         if device == 'v1740' and int(board_id) in range(0, 8):
             device_key = 'v1740/board-{}-'.format(board_id)
@@ -89,6 +90,8 @@ def json():
         counts = np.sum(np.array(p.execute(), dtype=np.int64), axis=0)
         if type(counts) != np.ndarray:
             return jsonify(json_data)
+        #if integral:
+        #    return jsonify(data=np.sum(counts))
         data = [
             { 'bin': round(i, 1), 'count': j } for i, j in zip(bins, counts)
         ]
@@ -96,6 +99,34 @@ def json():
             'query': query,
             'data': data,
             }
+        return jsonify(json_data)
+
+    elif query == 'trigger-counts':
+        counts_dict = {}
+        device_keys = {
+            'v1740/board-0-': 'v1740_board_0',
+            'v1740/board-1-': 'v1740_board_1',
+            'v1740/board-2-': 'v1740_board_2',
+            'v1740/board-3-': 'v1740_board_3',
+            'v1740/board-4-': 'v1740_board_4',
+            'v1740/board-5-': 'v1740_board_5',
+            'v1740/board-6-': 'v1740_board_6',
+            'v1740/board-7-': 'v1740_board_7',
+            'v1751/board-0-': 'v1751_board_0',
+            'v1751/board-1-': 'v1751_board_1',
+            'mwpc/': 'mwpc',
+            'wut/': 'wut',
+            }
+        for device_key, device_value in device_keys.items():
+            p = redis.pipeline()
+            keys = redis.keys(key_prefix + device_key + 'trigger-histogram')
+            for key in keys:
+                p.lrange(key, 0, -1)
+            counts = np.sum(np.array(p.execute(), dtype=np.int64), axis=0)
+            if type(counts) != np.ndarray:
+                return jsonify(json_data)
+            counts_dict[device_value] = np.sum(counts)
+        json_data = counts_dict
         return jsonify(json_data)
 
     elif query == 'mwpc-timing-histogram':
