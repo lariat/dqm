@@ -189,7 +189,7 @@
   var v1751_board_0_trigger_histogram = chart(
     {
       selection: "#v1751-board-0-trigger-histogram",
-      title: "CAEN V1751 Board 0 Triggers",
+      title: "CAEN V1751 board 0 triggers",
       json_url: json_url + "&device=v1751&board_id=0"
     }
   );
@@ -197,7 +197,7 @@
   var v1751_board_1_trigger_histogram = chart(
     {
       selection: "#v1751-board-1-trigger-histogram",
-      title: "CAEN V1751 Board 1 Triggers",
+      title: "CAEN V1751 board 1 triggers",
       json_url: json_url + "&device=v1751&board_id=1"
     }
   );
@@ -205,7 +205,7 @@
   var mwpc_trigger_histogram = chart(
     {
       selection: "#mwpc-trigger-histogram",
-      title: "Multi-Wire Proportional Chambers Triggers",
+      title: "Multi-wire proportional chambers triggers",
       json_url: json_url + "&device=mwpc"
     }
   );
@@ -213,7 +213,7 @@
   var wut_trigger_histogram = chart(
     {
       selection: "#wut-trigger-histogram",
-      title: "Wave Union TDC Triggers",
+      title: "Wave union TDC triggers",
       json_url: json_url + "&device=wut"
     }
   );
@@ -228,5 +228,30 @@
   //}
 
   //load_next();
+
+  $(document).ready(function() {
+    fill_table();
+  });
+
+  setInterval(function() {
+    fill_table();
+  }, 15000);
+
+  function fill_table() {
+    $.getJSON($SCRIPT_ROOT + '/json?q=trigger-counts', function (data) {
+      $("#v1751-board-0-triggers").html(JSON.stringify(data.v1751_board_0));
+      $("#v1751-board-1-triggers").html(JSON.stringify(data.v1751_board_1));
+      $("#mwpc-triggers").html(JSON.stringify(data.mwpc));
+      $("#wut-triggers").html(JSON.stringify(data.wut));
+      $("#v1740-board-0-triggers").html(JSON.stringify(data.v1740_board_0));
+      $("#v1740-board-1-triggers").html(JSON.stringify(data.v1740_board_1));
+      $("#v1740-board-2-triggers").html(JSON.stringify(data.v1740_board_2));
+      $("#v1740-board-3-triggers").html(JSON.stringify(data.v1740_board_3));
+      $("#v1740-board-4-triggers").html(JSON.stringify(data.v1740_board_4));
+      $("#v1740-board-5-triggers").html(JSON.stringify(data.v1740_board_5));
+      $("#v1740-board-6-triggers").html(JSON.stringify(data.v1740_board_6));
+      $("#v1740-board-7-triggers").html(JSON.stringify(data.v1740_board_7));
+    });
+  }
 
 }) ();
