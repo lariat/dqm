@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% set active_page = "v1740" %}
+
+{% block content %}
+
+    <div class="container">
+
+      <div class="panel panel-default">
+        <div class="panel-body">
+          <div id="v1740-histograms"></div>
+        </div>
+      </div>
+
+    </div>
+
+{% include 'scripts.html' %}
+
+    {#
+    <script src="{{ url_for('static', filename='js/v1740.js') }}"></script>
+    #}
+
+{% endblock %}

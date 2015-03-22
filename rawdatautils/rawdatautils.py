@@ -10,15 +10,21 @@ def get_caen_trigger_time_tag(file_path, board_id):
 
     if board_id in range(0, 8):
         tree_name = 'DataQuality/v1740'
-    else:
+    elif board_id in (8, 9):
         tree_name = 'DataQuality/v1751'
+    else:
+        print "Not a valid board ID!"
+        return np.array([], dtype=np.int64)
 
     caen_branch_list = [
         'trigger_time_tag',
         'board_id',
     ]
 
-    caen_array = rnp.root2array(file_path, tree_name, caen_branch_list)
+    selection = 'board_id == {}'.format(board_id)
+
+    caen_array = rnp.root2array(file_path, tree_name, caen_branch_list,
+                                selection)
 
     trigger_time_tag_array = caen_array['trigger_time_tag'].astype(np.int64)
     board_id_array = caen_array['board_id']

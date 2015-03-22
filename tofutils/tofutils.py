@@ -75,12 +75,10 @@ def get_v1751_tof(file_path, flatten=True):
     branches = [
         'board_id',
         'trigger_time_tag',
+        'channel_0',
+        'channel_1',
         'channel_2',
         'channel_3',
-        'channel_4',
-        'channel_5',
-        'channel_6',
-        'channel_7',
         ]
 
     selection = 'board_id == 8'
@@ -88,14 +86,12 @@ def get_v1751_tof(file_path, flatten=True):
     number_entries = arr.size
     tof_array = []
 
-    ustof1_waveform = arr['channel_2'].astype(dtype=np.int64)
-    ustof2_waveform = arr['channel_3'].astype(dtype=np.int64)
-    ustof3_waveform = arr['channel_4'].astype(dtype=np.int64)
-    ustof4_waveform = arr['channel_5'].astype(dtype=np.int64)
-    dstof1_waveform = arr['channel_6'].astype(dtype=np.int64)
-    dstof2_waveform = arr['channel_7'].astype(dtype=np.int64)
+    ustof1_waveform = arr['channel_0'].astype(dtype=np.int64)
+    ustof2_waveform = arr['channel_1'].astype(dtype=np.int64)
+    dstof1_waveform = arr['channel_2'].astype(dtype=np.int64)
+    dstof2_waveform = arr['channel_3'].astype(dtype=np.int64)
 
-    sys.stdout.write("Getting time of flight...")
+    sys.stdout.write("Getting TOF...\n")
 
     for entry in xrange(number_entries):
 
@@ -119,18 +115,12 @@ def get_v1751_tof(file_path, flatten=True):
 
         ustof1_hits = find_v1751_hits(ustof1_waveform[entry])
         ustof2_hits = find_v1751_hits(ustof2_waveform[entry])
-        ustof3_hits = find_v1751_hits(ustof3_waveform[entry])
-        ustof4_hits = find_v1751_hits(ustof4_waveform[entry])
 
-        if (ustof1_hits.size == 0 or ustof2_hits.size == 0 or
-            ustof3_hits.size == 0 or ustof4_hits.size == 0): 
+        if (ustof1_hits.size == 0 or ustof2_hits.size == 0):
             tof_array.append(np.array([], dtype=np.int64))
             continue
 
-        ustof_hits = match_v1751_hits(
-            match_v1751_hits(ustof1_hits, ustof2_hits),
-            match_v1751_hits(ustof3_hits, ustof4_hits)
-            )
+        ustof_hits = match_v1751_hits(ustof1_hits, ustof2_hits),
 
         ustof_flag = (ustof_hits > us_min_bin) & (ustof_hits < us_max_bin)
         ustof_hits = ustof_hits[ustof_flag]
@@ -152,7 +142,7 @@ def get_v1751_tof(file_path, flatten=True):
 
     tof_array = np.array(tof_array)
 
-    if flatten:
+    if flatten and tof_array.size > 0:
         return np.hstack(tof_array.flat)
 
     return tof_array

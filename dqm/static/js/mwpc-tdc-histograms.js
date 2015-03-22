@@ -1,10 +1,10 @@
 (function() {
 
-  var json_url = "/json?q=mwpc-tdc-histograms";
+  var json_url = $SCRIPT_ROOT + "/json?q=mwpc-tdc-histograms";
 
   // Set the dimensions of the canvas / graph
-  var margin = {top: 10, right: 70, bottom: 35, left: 70},
-      width = 300 - margin.left - margin.right,
+  var margin = {top: 10, right: 20, bottom: 35, left: 60},
+      width = 270 - margin.left - margin.right,
       height = 175 - margin.top - margin.bottom;
 
   // Set the title position
@@ -12,21 +12,21 @@
       y_title = 15;
 
   // Set histogram binning
-  var min_bin = 0,
-      max_bin = 320,
+  var min_bin = 200,
+      max_bin = 520,
       bin_step = 1;
 
   var bin_width = 1;
 
-  //var bin_array = [];
-  //for (var i = min_bin; i <= max_bin + bin_step; i += bin_step) {
-  //  bin_array.push(i);
-  //}
+  var bin_array = [];
+  for (var i = min_bin; i <= max_bin + bin_step; i += bin_step) {
+    bin_array.push(i);
+  }
 
-  //var bin_ticks = [];
-  //for (var i = min_bin; i <= max_bin + bin_step; i += bin_step) {
-  //  bin_ticks.push(i);
-  //}
+  var bin_ticks = [];
+  for (var i = min_bin; i <= max_bin + bin_step; i += bin_step) {
+    bin_ticks.push(i);
+  }
 
   //var bin_width = parseFloat(width / (bin_array.length - 1)) - 1;
 
@@ -503,7 +503,7 @@
       .attr("class", "d3-tip")
       .offset([-10, 0])
       .html(function(d) {
-        return "TOF: " + d.x + " ns <br> <strong>Entries:</strong> <span style='color:darkorange'>" + d.y + "</span>";
+        return "TDC time tick: " + d.x + " <br> <strong>Entries:</strong> <span style='color:darkorange'>" + d.y + "</span>";
       })
 
     svg_tdc_01.call(tip_tdc_01);
@@ -532,7 +532,7 @@
         .attr("y", 30)
         .attr("text-anchor", "end")
         .style("font-size", "10px")
-        .text("TDC count");
+        .text("TDC time tick");
 
     // Add the y-axis
     svg_tdc_01.append("g")
@@ -546,7 +546,7 @@
         .attr("text-anchor", "end")
         .attr("transform", "rotate(-90)")
         .style("font-size", "10px")
-        .text("Entries per 1 TDC count");
+        .text("Entries per 1 TDC time tick");
 
     //////////////////////////////////////////////////////////
     // TDC 02
@@ -569,7 +569,7 @@
       .attr("class", "d3-tip")
       .offset([-10, 0])
       .html(function(d) {
-        return "TOF: " + d.x + " ns <br> <strong>Entries:</strong> <span style='color:darkorange'>" + d.y + "</span>";
+        return "TDC time tick: " + d.x + " <br> <strong>Entries:</strong> <span style='color:darkorange'>" + d.y + "</span>";
       })
 
     svg_tdc_02.call(tip_tdc_02);
@@ -598,7 +598,7 @@
         .attr("y", 30)
         .attr("text-anchor", "end")
         .style("font-size", "10px")
-        .text("TDC count");
+        .text("TDC time tick");
 
     // Add the y-axis
     svg_tdc_02.append("g")
@@ -612,7 +612,7 @@
         .attr("text-anchor", "end")
         .attr("transform", "rotate(-90)")
         .style("font-size", "10px")
-        .text("Entries per 1 TDC count");
+        .text("Entries per 1 TDC time tick");
 
     //////////////////////////////////////////////////////////
     // TDC 03
@@ -635,7 +635,7 @@
       .attr("class", "d3-tip")
       .offset([-10, 0])
       .html(function(d) {
-        return "TOF: " + d.x + " ns <br> <strong>Entries:</strong> <span style='color:darkorange'>" + d.y + "</span>";
+        return "TDC time tick: " + d.x + " <br> <strong>Entries:</strong> <span style='color:darkorange'>" + d.y + "</span>";
       })
 
     svg_tdc_03.call(tip_tdc_03);
@@ -664,7 +664,7 @@
         .attr("y", 30)
         .attr("text-anchor", "end")
         .style("font-size", "10px")
-        .text("TDC count");
+        .text("TDC time tick");
 
     // Add the y-axis
     svg_tdc_03.append("g")
@@ -678,7 +678,7 @@
         .attr("text-anchor", "end")
         .attr("transform", "rotate(-90)")
         .style("font-size", "10px")
-        .text("Entries per 1 TDC count");
+        .text("Entries per 1 TDC time tick");
 
     //////////////////////////////////////////////////////////
     // TDC 04
@@ -701,7 +701,7 @@
       .attr("class", "d3-tip")
       .offset([-10, 0])
       .html(function(d) {
-        return "TOF: " + d.x + " ns <br> <strong>Entries:</strong> <span style='color:darkorange'>" + d.y + "</span>";
+        return "TDC time tick: " + d.x + " <br> <strong>Entries:</strong> <span style='color:darkorange'>" + d.y + "</span>";
       })
 
     svg_tdc_04.call(tip_tdc_04);
@@ -730,7 +730,7 @@
         .attr("y", 30)
         .attr("text-anchor", "end")
         .style("font-size", "10px")
-        .text("TDC count");
+        .text("TDC time tick");
 
     // Add the y-axis
     svg_tdc_04.append("g")
@@ -744,7 +744,7 @@
         .attr("text-anchor", "end")
         .attr("transform", "rotate(-90)")
         .style("font-size", "10px")
-        .text("Entries per 1 TDC count");
+        .text("Entries per 1 TDC time tick");
 
     //////////////////////////////////////////////////////////
     // TDC 05
@@ -767,7 +767,7 @@
       .attr("class", "d3-tip")
       .offset([-10, 0])
       .html(function(d) {
-        return "TOF: " + d.x + " ns <br> <strong>Entries:</strong> <span style='color:darkorange'>" + d.y + "</span>";
+        return "TDC time tick: " + d.x + " <br> <strong>Entries:</strong> <span style='color:darkorange'>" + d.y + "</span>";
       })
 
     svg_tdc_05.call(tip_tdc_05);
@@ -796,7 +796,7 @@
         .attr("y", 30)
         .attr("text-anchor", "end")
         .style("font-size", "10px")
-        .text("TDC count");
+        .text("TDC time tick");
 
     // Add the y-axis
     svg_tdc_05.append("g")
@@ -810,7 +810,7 @@
         .attr("text-anchor", "end")
         .attr("transform", "rotate(-90)")
         .style("font-size", "10px")
-        .text("Entries per 1 TDC count");
+        .text("Entries per 1 TDC time tick");
 
     //////////////////////////////////////////////////////////
     // TDC 06
@@ -833,7 +833,7 @@
       .attr("class", "d3-tip")
       .offset([-10, 0])
       .html(function(d) {
-        return "TOF: " + d.x + " ns <br> <strong>Entries:</strong> <span style='color:darkorange'>" + d.y + "</span>";
+        return "TDC time tick: " + d.x + " <br> <strong>Entries:</strong> <span style='color:darkorange'>" + d.y + "</span>";
       })
 
     svg_tdc_06.call(tip_tdc_06);
@@ -862,7 +862,7 @@
         .attr("y", 30)
         .attr("text-anchor", "end")
         .style("font-size", "10px")
-        .text("TDC count");
+        .text("TDC time tick");
 
     // Add the y-axis
     svg_tdc_06.append("g")
@@ -876,7 +876,7 @@
         .attr("text-anchor", "end")
         .attr("transform", "rotate(-90)")
         .style("font-size", "10px")
-        .text("Entries per 1 TDC count");
+        .text("Entries per 1 TDC time tick");
 
     //////////////////////////////////////////////////////////
     // TDC 07
@@ -899,7 +899,7 @@
       .attr("class", "d3-tip")
       .offset([-10, 0])
       .html(function(d) {
-        return "TOF: " + d.x + " ns <br> <strong>Entries:</strong> <span style='color:darkorange'>" + d.y + "</span>";
+        return "TDC time tick: " + d.x + " <br> <strong>Entries:</strong> <span style='color:darkorange'>" + d.y + "</span>";
       })
 
     svg_tdc_07.call(tip_tdc_07);
@@ -928,7 +928,7 @@
         .attr("y", 30)
         .attr("text-anchor", "end")
         .style("font-size", "10px")
-        .text("TDC count");
+        .text("TDC time tick");
 
     // Add the y-axis
     svg_tdc_07.append("g")
@@ -942,7 +942,7 @@
         .attr("text-anchor", "end")
         .attr("transform", "rotate(-90)")
         .style("font-size", "10px")
-        .text("Entries per 1 TDC count");
+        .text("Entries per 1 TDC time tick");
 
     //////////////////////////////////////////////////////////
     // TDC 08
@@ -965,7 +965,7 @@
       .attr("class", "d3-tip")
       .offset([-10, 0])
       .html(function(d) {
-        return "TOF: " + d.x + " ns <br> <strong>Entries:</strong> <span style='color:darkorange'>" + d.y + "</span>";
+        return "TDC time tick: " + d.x + " <br> <strong>Entries:</strong> <span style='color:darkorange'>" + d.y + "</span>";
       })
 
     svg_tdc_08.call(tip_tdc_08);
@@ -994,7 +994,7 @@
         .attr("y", 30)
         .attr("text-anchor", "end")
         .style("font-size", "10px")
-        .text("TDC count");
+        .text("TDC time tick");
 
     // Add the y-axis
     svg_tdc_08.append("g")
@@ -1008,7 +1008,7 @@
         .attr("text-anchor", "end")
         .attr("transform", "rotate(-90)")
         .style("font-size", "10px")
-        .text("Entries per 1 TDC count");
+        .text("Entries per 1 TDC time tick");
 
     //////////////////////////////////////////////////////////
     // TDC 09
@@ -1031,7 +1031,7 @@
       .attr("class", "d3-tip")
       .offset([-10, 0])
       .html(function(d) {
-        return "TOF: " + d.x + " ns <br> <strong>Entries:</strong> <span style='color:darkorange'>" + d.y + "</span>";
+        return "TDC time tick: " + d.x + " <br> <strong>Entries:</strong> <span style='color:darkorange'>" + d.y + "</span>";
       })
 
     svg_tdc_09.call(tip_tdc_09);
@@ -1060,7 +1060,7 @@
         .attr("y", 30)
         .attr("text-anchor", "end")
         .style("font-size", "10px")
-        .text("TDC count");
+        .text("TDC time tick");
 
     // Add the y-axis
     svg_tdc_09.append("g")
@@ -1074,7 +1074,7 @@
         .attr("text-anchor", "end")
         .attr("transform", "rotate(-90)")
         .style("font-size", "10px")
-        .text("Entries per 1 TDC count");
+        .text("Entries per 1 TDC time tick");
 
     //////////////////////////////////////////////////////////
     // TDC 10
@@ -1097,7 +1097,7 @@
       .attr("class", "d3-tip")
       .offset([-10, 0])
       .html(function(d) {
-        return "TOF: " + d.x + " ns <br> <strong>Entries:</strong> <span style='color:darkorange'>" + d.y + "</span>";
+        return "TDC time tick: " + d.x + " <br> <strong>Entries:</strong> <span style='color:darkorange'>" + d.y + "</span>";
       })
 
     svg_tdc_10.call(tip_tdc_10);
@@ -1126,7 +1126,7 @@
         .attr("y", 30)
         .attr("text-anchor", "end")
         .style("font-size", "10px")
-        .text("TDC count");
+        .text("TDC time tick");
 
     // Add the y-axis
     svg_tdc_10.append("g")
@@ -1140,7 +1140,7 @@
         .attr("text-anchor", "end")
         .attr("transform", "rotate(-90)")
         .style("font-size", "10px")
-        .text("Entries per 1 TDC count");
+        .text("Entries per 1 TDC time tick");
 
     //////////////////////////////////////////////////////////
     // TDC 11
@@ -1163,7 +1163,7 @@
       .attr("class", "d3-tip")
       .offset([-10, 0])
       .html(function(d) {
-        return "TOF: " + d.x + " ns <br> <strong>Entries:</strong> <span style='color:darkorange'>" + d.y + "</span>";
+        return "TDC time tick: " + d.x + " <br> <strong>Entries:</strong> <span style='color:darkorange'>" + d.y + "</span>";
       })
 
     svg_tdc_11.call(tip_tdc_11);
@@ -1192,7 +1192,7 @@
         .attr("y", 30)
         .attr("text-anchor", "end")
         .style("font-size", "10px")
-        .text("TDC count");
+        .text("TDC time tick");
 
     // Add the y-axis
     svg_tdc_11.append("g")
@@ -1206,7 +1206,7 @@
         .attr("text-anchor", "end")
         .attr("transform", "rotate(-90)")
         .style("font-size", "10px")
-        .text("Entries per 1 TDC count");
+        .text("Entries per 1 TDC time tick");
 
     //////////////////////////////////////////////////////////
     // TDC 12
@@ -1229,7 +1229,7 @@
       .attr("class", "d3-tip")
       .offset([-10, 0])
       .html(function(d) {
-        return "TOF: " + d.x + " ns <br> <strong>Entries:</strong> <span style='color:darkorange'>" + d.y + "</span>";
+        return "TDC time tick: " + d.x + " <br> <strong>Entries:</strong> <span style='color:darkorange'>" + d.y + "</span>";
       })
 
     svg_tdc_12.call(tip_tdc_12);
@@ -1258,7 +1258,7 @@
         .attr("y", 30)
         .attr("text-anchor", "end")
         .style("font-size", "10px")
-        .text("TDC count");
+        .text("TDC time tick");
 
     // Add the y-axis
     svg_tdc_12.append("g")
@@ -1272,7 +1272,7 @@
         .attr("text-anchor", "end")
         .attr("transform", "rotate(-90)")
         .style("font-size", "10px")
-        .text("Entries per 1 TDC count");
+        .text("Entries per 1 TDC time tick");
 
     //////////////////////////////////////////////////////////
     // TDC 13
@@ -1295,7 +1295,7 @@
       .attr("class", "d3-tip")
       .offset([-10, 0])
       .html(function(d) {
-        return "TOF: " + d.x + " ns <br> <strong>Entries:</strong> <span style='color:darkorange'>" + d.y + "</span>";
+        return "TDC time tick: " + d.x + " <br> <strong>Entries:</strong> <span style='color:darkorange'>" + d.y + "</span>";
       })
 
     svg_tdc_13.call(tip_tdc_13);
@@ -1324,7 +1324,7 @@
         .attr("y", 30)
         .attr("text-anchor", "end")
         .style("font-size", "10px")
-        .text("TDC count");
+        .text("TDC time tick");
 
     // Add the y-axis
     svg_tdc_13.append("g")
@@ -1338,7 +1338,7 @@
         .attr("text-anchor", "end")
         .attr("transform", "rotate(-90)")
         .style("font-size", "10px")
-        .text("Entries per 1 TDC count");
+        .text("Entries per 1 TDC time tick");
 
     //////////////////////////////////////////////////////////
     // TDC 14
@@ -1361,7 +1361,7 @@
       .attr("class", "d3-tip")
       .offset([-10, 0])
       .html(function(d) {
-        return "TOF: " + d.x + " ns <br> <strong>Entries:</strong> <span style='color:darkorange'>" + d.y + "</span>";
+        return "TDC time tick: " + d.x + " <br> <strong>Entries:</strong> <span style='color:darkorange'>" + d.y + "</span>";
       })
 
     svg_tdc_14.call(tip_tdc_14);
@@ -1390,7 +1390,7 @@
         .attr("y", 30)
         .attr("text-anchor", "end")
         .style("font-size", "10px")
-        .text("TDC count");
+        .text("TDC time tick");
 
     // Add the y-axis
     svg_tdc_14.append("g")
@@ -1404,7 +1404,7 @@
         .attr("text-anchor", "end")
         .attr("transform", "rotate(-90)")
         .style("font-size", "10px")
-        .text("Entries per 1 TDC count");
+        .text("Entries per 1 TDC time tick");
 
     //////////////////////////////////////////////////////////
     // TDC 15
@@ -1427,7 +1427,7 @@
       .attr("class", "d3-tip")
       .offset([-10, 0])
       .html(function(d) {
-        return "TOF: " + d.x + " ns <br> <strong>Entries:</strong> <span style='color:darkorange'>" + d.y + "</span>";
+        return "TDC time tick: " + d.x + " <br> <strong>Entries:</strong> <span style='color:darkorange'>" + d.y + "</span>";
       })
 
     svg_tdc_15.call(tip_tdc_15);
@@ -1456,7 +1456,7 @@
         .attr("y", 30)
         .attr("text-anchor", "end")
         .style("font-size", "10px")
-        .text("TDC count");
+        .text("TDC time tick");
 
     // Add the y-axis
     svg_tdc_15.append("g")
@@ -1470,7 +1470,7 @@
         .attr("text-anchor", "end")
         .attr("transform", "rotate(-90)")
         .style("font-size", "10px")
-        .text("Entries per 1 TDC count");
+        .text("Entries per 1 TDC time tick");
 
     //////////////////////////////////////////////////////////
     // TDC 16
@@ -1493,7 +1493,7 @@
       .attr("class", "d3-tip")
       .offset([-10, 0])
       .html(function(d) {
-        return "TOF: " + d.x + " ns <br> <strong>Entries:</strong> <span style='color:darkorange'>" + d.y + "</span>";
+        return "TDC time tick: " + d.x + " <br> <strong>Entries:</strong> <span style='color:darkorange'>" + d.y + "</span>";
       })
 
     svg_tdc_16.call(tip_tdc_16);
@@ -1522,7 +1522,7 @@
         .attr("y", 30)
         .attr("text-anchor", "end")
         .style("font-size", "10px")
-        .text("TDC count");
+        .text("TDC time tick");
 
     // Add the y-axis
     svg_tdc_16.append("g")
@@ -1536,7 +1536,7 @@
         .attr("text-anchor", "end")
         .attr("transform", "rotate(-90)")
         .style("font-size", "10px")
-        .text("Entries per 1 TDC count");
+        .text("Entries per 1 TDC time tick");
 
     //////////////////////////////////////////////////////////
 

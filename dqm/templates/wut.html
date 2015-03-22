@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% set active_page = "wut" %}
+
+{% block content %}
+
+    <div class="container">
+
+      <div class="panel panel-default">
+        <div class="panel-body">
+          <div id="wut-histograms"></div>
+        </div>
+      </div>
+
+    </div>
+
+{% include 'scripts.html' %}
+
+    {#
+    <script src="{{ url_for('static', filename='js/wut.js') }}"></script>
+    #}
+
+{% endblock %}

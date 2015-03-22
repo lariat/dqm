@@ -1,6 +1,6 @@
 (function() {
 
-  var json_url = "/json?q=v1751-tof-histogram";
+  var json_url = $SCRIPT_ROOT + "/json?q=v1751-tof-histogram";
 
   // Set the dimensions of the canvas / graph
   var margin = {top: 60, right: 70, bottom: 30, left: 50},
@@ -68,7 +68,8 @@
       .attr("class", "d3-tip")
       .offset([-10, 0])
       .html(function(d) {
-        return "TOF: " + d.x + " ns <br> <strong>Entries:</strong> <span style='color:darkorange'>" + d.y + "</span>";
+        //return "TOF: " + d.x + " ns <br> <strong>Entries:</strong> <span style='color:darkorange'>" + d.y + "</span>";
+        return "<strong>Entries:</strong> <span style='color:darkorange'>" + d.y + "</span> <br> TOF: " + d.x + " ns";
       })
 
     svg.call(tip);
