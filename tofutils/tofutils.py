@@ -91,11 +91,11 @@ def get_v1751_tof(file_path, flatten=True):
     dstof1_waveform = arr['channel_2'].astype(dtype=np.int64)
     dstof2_waveform = arr['channel_3'].astype(dtype=np.int64)
 
-    sys.stdout.write("Getting TOF...\n")
+    #sys.stdout.write("Getting TOF...\n")
 
     for entry in xrange(number_entries):
 
-        update_progress((entry+1) / number_entries)
+        #update_progress((entry+1) / number_entries)
 
         dstof1_hits = find_v1751_hits(dstof1_waveform[entry])
         dstof2_hits = find_v1751_hits(dstof2_waveform[entry])
@@ -138,7 +138,7 @@ def get_v1751_tof(file_path, flatten=True):
             else:
                 tof_array.append(np.array([], dtype=np.int64))
 
-    sys.stdout.write("\n")
+    #sys.stdout.write("\n")
 
     tof_array = np.array(tof_array)
 
