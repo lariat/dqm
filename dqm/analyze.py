@@ -32,19 +32,6 @@ if cmd_subdir not in sys.path:
 import rawdatautils
 import tofutils
 
-def parse_run_spill(file_path):
-    """
-    Returns run number and spill number from parsed from
-    file_path.
-
-    run, spill = parse_run_spill(run, spill)
-
-    """
-    token_list = file_path.split("_")
-    run = token_list[-3]
-    spill = token_list[-1].split(".")[-2]
-    return run, spill
-
 def get_spill_info(file_path):
     """
     Returns the following spill information from the
