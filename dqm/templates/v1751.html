@@ -6,34 +6,43 @@
     <div class="container">
 
       <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">V1751 board 0 ADC count histograms</h3>
+        </div>
         <div class="panel-body text-center">
-          Nothing here yet!
-          <div id="v1751-histograms"></div>
+          <div id="v1751-board-0-channel-0-adc-count-histogram"></div>
+          <div id="v1751-board-0-channel-1-adc-count-histogram"></div>
+          <div id="v1751-board-0-channel-2-adc-count-histogram"></div>
+          <div id="v1751-board-0-channel-3-adc-count-histogram"></div>
+          <div id="v1751-board-0-channel-4-adc-count-histogram"></div>
+          <div id="v1751-board-0-channel-5-adc-count-histogram"></div>
+          <div id="v1751-board-0-channel-6-adc-count-histogram"></div>
+          <div id="v1751-board-0-channel-7-adc-count-histogram"></div>
         </div>
       </div>
 
+      {#
       <div class="panel panel-default">
         <div class="panel-heading">
-          <h3 class="panel-title">V1751 board 0 pedestals</h3>
+          <h3 class="panel-title">V1751 board 1 ADC count histograms</h3>
         </div>
         <div class="panel-body text-center">
-          <div id="v1751-board-0-channel-0-pedestal-histogram"></div>
-          <div id="v1751-board-0-channel-1-pedestal-histogram"></div>
-          <div id="v1751-board-0-channel-2-pedestal-histogram"></div>
-          <div id="v1751-board-0-channel-3-pedestal-histogram"></div>
-          <div id="v1751-board-0-channel-4-pedestal-histogram"></div>
-          <div id="v1751-board-0-channel-5-pedestal-histogram"></div>
-          <div id="v1751-board-0-channel-6-pedestal-histogram"></div>
-          <div id="v1751-board-0-channel-7-pedestal-histogram"></div>
+          <div id="v1751-board-1-channel-0-adc-count-histogram"></div>
+          <div id="v1751-board-1-channel-1-adc-count-histogram"></div>
+          <div id="v1751-board-1-channel-2-adc-count-histogram"></div>
+          <div id="v1751-board-1-channel-3-adc-count-histogram"></div>
+          <div id="v1751-board-1-channel-4-adc-count-histogram"></div>
+          <div id="v1751-board-1-channel-5-adc-count-histogram"></div>
+          <div id="v1751-board-1-channel-6-adc-count-histogram"></div>
+          <div id="v1751-board-1-channel-7-adc-count-histogram"></div>
         </div>
       </div>
+      #}
 
     </div>
 
 {% include 'scripts.html' %}
 
-    {#
-    <script src="{{ url_for('static', filename='js/v1751-pedestal-histograms.js') }}"></script>
-    #}
+    <script src="{{ url_for('static', filename='js/v1751-adc-count-histograms.js') }}"></script>
 
 {% endblock %}

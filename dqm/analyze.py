@@ -224,11 +224,23 @@ if v1751_ok:
         'v1751/board-0-trigger-histogram'
     v1751_board_1_trigger_histogram_key = key_prefix + \
         'v1751/board-1-trigger-histogram'
+    v1751_board_0_adc_count_histogram_keys = [
+        key_prefix + 'v1751/board-0-channel-{}-adc-count-histogram' \
+        .format(channel)
+        for channel in xrange(8)
+        ]
+    v1751_board_1_adc_count_histogram_keys = [
+        key_prefix + 'v1751/board-1-channel-{}-adc-count-histogram' \
+        .format(channel)
+        for channel in xrange(8)
+        ]
     v1751_tof_histogram_key = key_prefix + 'v1751/tof-histogram'
 
     # if keys already exists in redis, delete the existing keys
     redis.delete(v1751_board_0_trigger_histogram_key)
     redis.delete(v1751_board_1_trigger_histogram_key)
+    redis.delete(v1751_board_0_adc_count_histogram_keys)
+    redis.delete(v1751_board_1_adc_count_histogram_keys)
     redis.delete(v1751_tof_histogram_key)
 
     # get arrays of CAEN V1751 trigger times
@@ -246,6 +258,12 @@ if v1751_ok:
         v1751_board_1_time * 1e-6, bins=300, range=(0, 30)
         )
 
+    # get histograms of CAEN V1751 ADC count
+    v1751_board_0_adc_count_histograms = \
+        rawdatautils.get_caen_adc_count_histograms(file_path, board_id=8)
+    v1751_board_1_adc_count_histograms = \
+        rawdatautils.get_caen_adc_count_histograms(file_path, board_id=9)
+
     # get array of TOF values from CAEN V1751 waveforms
     v1751_tof_array = tofutils.get_v1751_tof(file_path, flatten=True)
 
@@ -260,9 +278,16 @@ if v1751_ok:
             *v1751_board_0_trigger_histogram)
     p.rpush(v1751_board_1_trigger_histogram_key,
             *v1751_board_1_trigger_histogram)
-    p.rpush(v1751_tof_histogram_key, *v1751_tof_histogram)
     p.expire(v1751_board_0_trigger_histogram_key, key_timeout)
     p.expire(v1751_board_1_trigger_histogram_key, key_timeout)
+    for channel in xrange(0, 8):
+        p.rpush(v1751_board_0_adc_count_histogram_keys[channel],
+                *v1751_board_0_adc_count_histograms[channel])
+        p.rpush(v1751_board_1_adc_count_histogram_keys[channel],
+                *v1751_board_1_adc_count_histograms[channel])
+        p.expire(v1751_board_0_adc_count_histogram_keys[channel], key_timeout)
+        p.expire(v1751_board_1_adc_count_histogram_keys[channel], key_timeout)
+    p.rpush(v1751_tof_histogram_key, *v1751_tof_histogram)
     p.expire(v1751_tof_histogram_key, key_timeout)
     p.execute()
 

@@ -33,6 +33,56 @@ def get_caen_trigger_time_tag(file_path, board_id):
 
     return trigger_time_tag
 
+def get_caen_adc_count_histograms(file_path, board_id):
+    """
+    Returns a list of histograms of ADC count for each
+    channel.
+
+    """
+
+    if board_id in xrange(0, 8):
+        tree_name = 'DataQuality/v1740'
+        number_channels = 64
+        number_samples = 1536
+        max_adc_count = 4096
+    elif board_id in (8, 9):
+        tree_name = 'DataQuality/v1751'
+        number_channels = 8
+        number_samples = 1792
+        max_adc_count = 1024
+    else:
+        print "Not a valid board ID!"
+        return np.array([], dtype=np.int64)
+
+    caen_branch_list = [
+        'board_id',
+    ]
+    caen_channel_str_list = [
+        'channel_{}'.format(i) for i in xrange(number_channels)
+        ]
+    caen_branch_list.extend(caen_channel_str_list)
+
+    selection = 'board_id == {}'.format(board_id)
+
+    caen_array = rnp.root2array(file_path, tree_name, caen_branch_list,
+                                selection)
+
+    flag = caen_array['board_id'] == board_id
+
+    channel_array = np.array(
+        [ caen_array[caen_channel_str_list[channel_index]].astype(np.int64)
+          for channel_index in xrange(number_channels) ]
+        )
+
+    caen_adc_count_histograms = [
+        np.histogram(channel_array[channel_index][flag].flatten(),
+                     bins=max_adc_count,
+                     range=(0, max_adc_count))[0]
+        for channel_index in xrange(number_channels)
+        ]
+
+    return caen_adc_count_histograms
+
 def get_mwpc_tdc_time_stamp(file_path):
     """
     Returns the TDC time stamp. Each TDC time stamp count is
