@@ -400,9 +400,10 @@ for spill_key in spill_keys:
         p.rpush(run_key, *run_array)
         p.expire(run_key, key_timeout)
         p.execute()
-    # add this spill number to list of analyzed spills
-    p = redis.pipeline()
-    p.rpush(spills_list_key, spill_number)
-    p.expire(spills_list_key, key_timeout)
-    p.execute()
+
+# add this spill number to list of analyzed spills
+p = redis.pipeline()
+p.rpush(spills_list_key, spill_number)
+p.expire(spills_list_key, key_timeout)
+p.execute()
 
