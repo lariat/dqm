@@ -143,8 +143,11 @@ run_number, spill_number, time_stamp = get_spill_info(file_path)
 key_timeout = 604800  # each count is 1 second
 
 # set redis key prefix
-run_key_prefix = 'dqm/run:{}/'.format(run_number)
+run_key_prefix = 'dqm/run:{}//'.format(run_number)
 spill_key_prefix = 'dqm/run:{}/spill:{}/'.format(run_number, spill_number)
+
+# set key that stores spill numbers analyzed in this run
+spills_list_key = run_key_prefix + 'spills'
 
 # set key for this analysis script
 analyze_key = spill_key_prefix + 'analyze'
@@ -160,6 +163,17 @@ if (v1740_ok, v1751_ok, mwpc_ok, wut_ok) == (False, False, False, False):
     print "Exiting with exit status {}".format(exit_status)
     # tell redis that this is a bad file
     redis.setex(analyze_key, exit_status, key_timeout)
+    sys.exit(exit_status)
+
+# get list of spills that have already been analyzed
+spills_list = np.array(redis.lrange(spills_list_key, 0, -1),
+                       dtype=np.int64)
+
+# if spill has already been analyzed, exit
+if spill_number in spills_list:
+    exit_status = 0
+    print "Spill file has already been analyzed: {}".format(file_path)
+    print "Exiting with exit status {}".format(exit_status)
     sys.exit(exit_status)
 
 #/////////////////////////////////////////////////////////////
@@ -366,16 +380,14 @@ else:
 # tell redis that we are done analyzing this file
 redis.setex(analyze_key, 0, key_timeout)
 
-# add to cumulative run keys
+# time to add spill histograms to cumulative run histograms
+# get spill keys added to redis during this script execution
 spill_keys = redis.keys(spill_key_prefix + '*')
-spills_list_key = run_key_prefix + 'spills'
 
 for spill_key in spill_keys:
-    spills_list = np.array(redis.lrange(spills_list_key, 0, -1),
-                           dtype=np.int64)
-    if spill_number in spills_list:
-        continue
+    # set cumulative run key
     run_key = '//'.join(spill_key.split('/spill:{}/'.format(spill_number)))
+    # add current spill histogram to cumulative run histogram
     if spill_key.split('-')[-1] == 'histogram':
         spill_array = np.array(redis.lrange(spill_key, 0, -1), dtype=np.int64)
         run_array = np.array(redis.lrange(run_key, 0, -1), dtype=np.int64)
@@ -388,4 +400,9 @@ for spill_key in spill_keys:
         p.rpush(run_key, *run_array)
         p.expire(run_key, key_timeout)
         p.execute()
+    # add this spill number to list of analyzed spills
+    p = redis.pipeline()
+    p.rpush(spills_list_key, spill_number)
+    p.expire(spills_list_key, key_timeout)
+    p.execute()
 
