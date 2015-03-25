@@ -384,9 +384,9 @@ for spill_key in spill_keys:
             run_array += spill_array
         else:
             run_array = spill_array
-    p = redis.pipeline()
-    p.delete(run_key)
-    p.rpush(run_key, *run_array)
-    p.expire(run_key, key_timeout)
-    p.execute()
+        p = redis.pipeline()
+        p.delete(run_key)
+        p.rpush(run_key, *run_array)
+        p.expire(run_key, key_timeout)
+        p.execute()
 
