@@ -375,7 +375,7 @@ for spill_key in spill_keys:
                            dtype=np.int64)
     if spill_number in spills_list:
         continue
-    run_key = '/'.join(spill_key.split('/spill:{}/'.format(spill_number)))
+    run_key = '//'.join(spill_key.split('/spill:{}/'.format(spill_number)))
 
     if spill_key.split('-')[-1] == 'histogram':
         spill_array = np.array(redis.lrange(spill_key, 0, -1), dtype=np.int64)

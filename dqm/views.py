@@ -65,8 +65,8 @@ def json():
         'data': [ { 'bin': 0, 'count': 1 }, { 'bin': 1, 'count': 0 } ],
         }
 
-    if spill == '*':
-        key_prefix = 'dqm/run:*/'
+    if run == '*' and spill == '*':
+        key_prefix = 'dqm/run:*//'
     else:
         key_prefix = 'dqm/run:*/spill:*/'
 
