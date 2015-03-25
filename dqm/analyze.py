@@ -187,7 +187,7 @@ if v1740_ok:
         for board_id in xrange(0, 8)
         ]
 
-    # if keys already exists in redis, delete the existing keys
+    # if keys already exist in redis, delete the existing keys
     redis.delete(*v1740_trigger_histogram_keys)
 
     # send commands in a pipeline to save on round-trip time
@@ -224,7 +224,7 @@ if v1751_ok:
         ]
     v1751_tof_histogram_key = spill_key_prefix + 'v1751/tof-histogram'
 
-    # if keys already exists in redis, delete the existing keys
+    # if keys already exist in redis, delete the existing keys
     redis.delete(v1751_board_0_trigger_histogram_key)
     redis.delete(v1751_board_1_trigger_histogram_key)
     redis.delete(v1751_board_0_adc_count_histogram_keys)
@@ -296,7 +296,7 @@ if mwpc_ok:
         for tdc_index in xrange(0, 16)
         ]
 
-    # if keys already exists in redis, delete the existing keys
+    # if keys already exist in redis, delete the existing keys
     redis.delete(mwpc_trigger_histogram_key)
     redis.delete(*mwpc_tdc_timing_histogram_keys)
 
@@ -350,7 +350,7 @@ if wut_ok:
         wut_time * 1e-6, bins=300, range=(0, 30)
         )
 
-    # if keys already exists in redis, delete the existing keys
+    # if keys already exist in redis, delete the existing keys
     redis.delete(wut_trigger_histogram_key)
 
     # send commands in a pipeline to save on round-trip time
@@ -376,7 +376,6 @@ for spill_key in spill_keys:
     if spill_number in spills_list:
         continue
     run_key = '//'.join(spill_key.split('/spill:{}/'.format(spill_number)))
-
     if spill_key.split('-')[-1] == 'histogram':
         spill_array = np.array(redis.lrange(spill_key, 0, -1), dtype=np.int64)
         run_array = np.array(redis.lrange(run_key, 0, -1), dtype=np.int64)
