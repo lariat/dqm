@@ -143,10 +143,11 @@ run_number, spill_number, time_stamp = get_spill_info(file_path)
 key_timeout = 604800  # each count is 1 second
 
 # set redis key prefix
-key_prefix = 'dqm/run:{}/spill:{}/'.format(run_number, spill_number)
+run_key_prefix = 'dqm/run:{}/'.format(run_number)
+spill_key_prefix = 'dqm/run:{}/spill:{}/'.format(run_number, spill_number)
 
 # set key for this analysis script
-analyze_key = key_prefix + 'analyze'
+analyze_key = spill_key_prefix + 'analyze'
 
 # tell redis that we are currently analyzing this file
 redis.set(analyze_key, 1)
@@ -168,7 +169,7 @@ if (v1740_ok, v1751_ok, mwpc_ok, wut_ok) == (False, False, False, False):
 if v1740_ok:
     # set keys
     v1740_trigger_histogram_keys = [
-        key_prefix + 'v1740/board-{}-trigger-histogram'.format(board_id)
+        spill_key_prefix + 'v1740/board-{}-trigger-histogram'.format(board_id)
         for board_id in xrange(0, 8)
         ]
 
@@ -207,21 +208,21 @@ else:
 
 if v1751_ok:
     # set keys
-    v1751_board_0_trigger_histogram_key = key_prefix + \
+    v1751_board_0_trigger_histogram_key = spill_key_prefix + \
         'v1751/board-0-trigger-histogram'
-    v1751_board_1_trigger_histogram_key = key_prefix + \
+    v1751_board_1_trigger_histogram_key = spill_key_prefix + \
         'v1751/board-1-trigger-histogram'
     v1751_board_0_adc_count_histogram_keys = [
-        key_prefix + 'v1751/board-0-channel-{}-adc-count-histogram' \
+        spill_key_prefix + 'v1751/board-0-channel-{}-adc-count-histogram' \
         .format(channel)
         for channel in xrange(8)
         ]
     v1751_board_1_adc_count_histogram_keys = [
-        key_prefix + 'v1751/board-1-channel-{}-adc-count-histogram' \
+        spill_key_prefix + 'v1751/board-1-channel-{}-adc-count-histogram' \
         .format(channel)
         for channel in xrange(8)
         ]
-    v1751_tof_histogram_key = key_prefix + 'v1751/tof-histogram'
+    v1751_tof_histogram_key = spill_key_prefix + 'v1751/tof-histogram'
 
     # if keys already exists in redis, delete the existing keys
     redis.delete(v1751_board_0_trigger_histogram_key)
@@ -288,10 +289,10 @@ else:
 
 if mwpc_ok:
     # set keys
-    mwpc_trigger_histogram_key = key_prefix + 'mwpc/trigger-histogram'
+    mwpc_trigger_histogram_key = spill_key_prefix + 'mwpc/trigger-histogram'
     # set list of keys for the 16 TDCs of the MWPCs
     mwpc_tdc_timing_histogram_keys = [
-        key_prefix + 'mwpc/tdc-{}-timing-histogram'.format(tdc_index+1)
+        spill_key_prefix + 'mwpc/tdc-{}-timing-histogram'.format(tdc_index+1)
         for tdc_index in xrange(0, 16)
         ]
 
@@ -338,7 +339,7 @@ else:
 
 if wut_ok:
     # set keys
-    wut_trigger_histogram_key = key_prefix + 'wut/trigger-histogram'
+    wut_trigger_histogram_key = spill_key_prefix + 'wut/trigger-histogram'
 
     # each time header count is 16 microseconds
     wut_time = rawdatautils.get_wut_time_header(file_path) \
@@ -364,4 +365,28 @@ else:
 
 # tell redis that we are done analyzing this file
 redis.setex(analyze_key, 0, key_timeout)
+
+# add to cumulative run keys
+spill_keys = redis.keys(spill_key_prefix + '*')
+spills_list_key = run_key_prefix + 'spills'
+
+for spill_key in spill_keys:
+    spills_list = np.array(redis.lrange(spills_list_key, 0, -1),
+                           dtype=np.int64)
+    if spill_number in spills_list:
+        continue
+    run_key = '/'.join(spill_key.split('/spill:{}/'.format(spill_number)))
+
+    if spill_key.split('-')[-1] == 'histogram':
+        spill_array = np.array(redis.lrange(spill_key, 0, -1), dtype=np.int64)
+        run_array = np.array(redis.lrange(run_key, 0, -1), dtype=np.int64)
+        if run_array.size == spill_array.size:
+            run_array += spill_array
+        else:
+            run_array = spill_array
+    p = redis.pipeline()
+    p.delete(run_key)
+    p.rpush(run_key, *run_array)
+    p.expire(run_key, key_timeout)
+    p.execute()
 

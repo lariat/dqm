@@ -65,7 +65,10 @@ def json():
         'data': [ { 'bin': 0, 'count': 1 }, { 'bin': 1, 'count': 0 } ],
         }
 
-    key_prefix = 'dqm/run:*/spill:*/'
+    if spill == '*':
+        key_prefix = 'dqm/run:*/'
+    else:
+        key_prefix = 'dqm/run:*/spill:*/'
 
     if query == 'trigger-histogram':
         device = request.args.get('device', None)
