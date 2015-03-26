@@ -27,7 +27,11 @@
 
     <!-- navbar -->
     <nav class="navbar navbar-inverse navbar-fixed-top">
+      {#
       <div class="container">
+      #}
+      <div class="container-fluid">
+
         <div class="navbar-header">
           <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
             <span class="sr-only">Toggle navigation</span>
@@ -37,6 +41,7 @@
           </button>
           <a class="navbar-brand" href="#">DQM</a>
         </div>
+
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             {% for href, id, caption in navigation_bar %}
@@ -45,36 +50,37 @@
             {% endfor %}
           </ul>
 
-          <ul class="nav navbar-nav navbar-right">
-            <li><a>Run:</a></li>
-            {#
-            <li><p class="navbar-text">Run:</p></li>
-            #}
-            <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">4296 <span class="caret"></span></a>
-              <ul class="dropdown-menu" role="menu">
-                <li class="dropdown-header">Live</li>
-                <li><a href="#">4296</a></li>
-                <li class="divider"></li>
-                <li class="dropdown-header">Completed Runs</li>
-                <li><a href="#">4294</a></li>
-                <li><a href="#">4295</a></li>
-              </ul>
-            </li>
-            <li><a>Spill:</a></li>
-            <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">All <span class="caret"></span></a>
-              <ul class="dropdown-menu" role="menu">
-                <li class="dropdown-header">Live</li>
-                <li><a href="#">All</a></li>
-                <li class="divider"></li>
-                <li class="dropdown-header">Completed Spills</li>
-                <li><a href="#">1</a></li>
-                <li><a href="#">2</a></li>
-                <li><a href="#">3</a></li>
-              </ul>
-            </li>
-          </ul>
+          <div class="navbar-right">
+            <p class="navbar-text">Run:</p>
+            <ul class="nav navbar-nav">
+              <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">4296 <span class="caret"></span></a>
+                <ul class="dropdown-menu" role="menu">
+                  <li class="dropdown-header">Live</li>
+                  <li><a href="#">4296</a></li>
+                  <li class="divider"></li>
+                  <li class="dropdown-header">Completed Runs</li>
+                  <li><a href="#">4294</a></li>
+                  <li><a href="#">4295</a></li>
+                </ul>
+              </li>
+            </ul>
+            <p class="navbar-text">Spill:</p>
+            <ul class="nav navbar-nav">
+              <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">All <span class="caret"></span></a>
+                <ul class="dropdown-menu" role="menu">
+                  <li class="dropdown-header">Live</li>
+                  <li><a href="#">All</a></li>
+                  <li class="divider"></li>
+                  <li class="dropdown-header">Completed Spills</li>
+                  <li><a href="#">1</a></li>
+                  <li><a href="#">2</a></li>
+                  <li><a href="#">3</a></li>
+                </ul>
+              </li>
+            </ul>
+          </div>
 
         </div><!--/.nav-collapse -->
       </div>
