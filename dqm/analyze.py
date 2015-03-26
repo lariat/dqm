@@ -146,6 +146,9 @@ key_timeout = 604800  # each count is 1 second
 run_key_prefix = 'dqm/run:{}//'.format(run_number)
 spill_key_prefix = 'dqm/run:{}/spill:{}/'.format(run_number, spill_number)
 
+# set key for latest run analyzed
+latest_run_key = 'dqm/latest-run'
+
 # set key that stores spill numbers analyzed in this run
 spills_list_key = run_key_prefix + 'spills'
 
@@ -401,8 +404,10 @@ for spill_key in spill_keys:
         p.expire(run_key, key_timeout)
         p.execute()
 
+# tell redis that this is the latest run analyzed and
 # add this spill number to list of analyzed spills
 p = redis.pipeline()
+p.set(latest_run_key, run_number)
 p.rpush(spills_list_key, spill_number)
 p.expire(spills_list_key, key_timeout)
 p.execute()

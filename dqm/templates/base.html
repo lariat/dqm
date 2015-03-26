@@ -22,6 +22,13 @@
     <link href="{{ url_for('static', filename='lib/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css" media="screen">
     <link href="{{ url_for('static', filename='lib/d3-tip/css/d3-tip.min.css') }}" rel="stylesheet" type="text/css" media="screen">
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet" type="text/css" media="screen">
+    <style>
+    .scrollable-menu {
+        height: auto;
+        max-height: 500px;
+        overflow-x: hidden;
+    }
+    </style>
   </head>
   <body>
 
@@ -52,35 +59,53 @@
 
           <div class="navbar-right">
             <p class="navbar-text">Run:</p>
+
             <ul class="nav navbar-nav">
-              <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">4296 <span class="caret"></span></a>
-                <ul class="dropdown-menu" role="menu">
-                  <li class="dropdown-header">Live</li>
-                  <li><a href="#">4296</a></li>
-                  <li class="divider"></li>
-                  <li class="dropdown-header">Completed Runs</li>
-                  <li><a href="#">4294</a></li>
-                  <li><a href="#">4295</a></li>
-                </ul>
+              <li class="btn-group select" id="select-run">
+                <button type="button" class="btn btn-default navbar-btn dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                  <span class="selected" id="selected-run"></span> <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu scrollable-menu option" id="runs" role="menu"></ul>
               </li>
             </ul>
+
             <p class="navbar-text">Spill:</p>
+
             <ul class="nav navbar-nav">
-              <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">All <span class="caret"></span></a>
-                <ul class="dropdown-menu" role="menu">
-                  <li class="dropdown-header">Live</li>
+              <li class="btn-group select" id="select-spill">
+                <button type="button" class="btn btn-default navbar-btn dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                  <span class="selected" id="selected-spill">All</span> <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu scrollable-menu option" id="spills" role="menu">
                   <li><a href="#">All</a></li>
                   <li class="divider"></li>
                   <li class="dropdown-header">Completed Spills</li>
                   <li><a href="#">1</a></li>
                   <li><a href="#">2</a></li>
                   <li><a href="#">3</a></li>
+                  <li><a href="#">4</a></li>
+                  <li><a href="#">5</a></li>
+                  <li><a href="#">6</a></li>
+                  <li><a href="#">7</a></li>
+                  <li><a href="#">8</a></li>
+                  <li><a href="#">9</a></li>
+                  <li><a href="#">10</a></li>
+                  <li><a href="#">11</a></li>
+                  <li><a href="#">12</a></li>
+                  <li><a href="#">13</a></li>
+                  <li><a href="#">14</a></li>
+                  <li><a href="#">15</a></li>
+                  <li><a href="#">16</a></li>
+                  <li><a href="#">17</a></li>
+                  <li><a href="#">18</a></li>
+                  <li><a href="#">19</a></li>
+                  <li><a href="#">20</a></li>
                 </ul>
               </li>
             </ul>
+
           </div>
+
         </div><!--/.nav-collapse -->
 
       </div>
@@ -91,9 +116,29 @@
 {% include 'footer.html' %}
 
     <script>
-    $(".dropdown-menu li a").click(function(){
-      var selText = $(this).text();
-      $(this).parents('.dropdown').find('.dropdown-toggle').html(selText+' <span class="caret"></span>');
+    $(document).ready(function() {
+      $.getJSON($SCRIPT_ROOT + '/json?q=runs', function(data) {
+        //console.log(data.completed)
+        $('#selected-run').html(JSON.stringify(data.selected));
+        $('#runs').append('<li class="dropdown-header">Live</li>');
+        $('#runs').append('<li><a href="#">' + data.latest + '</a></li>');
+        $('#runs').append('<li class="divider"></li>');
+        $('#runs').append('<li class="dropdown-header">Completed Runs</li>');
+        for (var i = 0; i < data.completed.length; ++i) {
+            //console.log(data.completed[i])
+            $('#runs').append('<li><a href="#">' + data.completed[i] + '</a></li>');
+        }
+      });
+    });
+    </script>
+
+    <script>
+    $('body').on('click', '.option li', function() {
+      var i = $(this).parents('.select').attr('id');
+      var v = $(this).children().text();
+      var o = $(this).attr('id');
+      $('#' + i + ' .selected').attr('id', o);
+      $('#' + i + ' .selected').text(v);
     });
     </script>
 

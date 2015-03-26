@@ -70,10 +70,28 @@ def json():
     else:
         key_prefix = 'dqm/run:*/spill:*/'
 
-    if query == 'trigger-histogram':
+    if query == 'runs':
+        selected_run = 4296
+        runs_list = []
+        keys = redis.keys('dqm/run:*//spills')
+        for key in keys:
+            run_number = int(key.split('/')[1].split(':')[1])
+            runs_list.append(run_number)
+        runs_list.sort(reverse=True)
+        latest_run = runs_list.pop(0)
+        if latest_run != int(redis.get('dqm/latest-run')):
+            return jsonify(json_data)
+        json_data = {
+                'query': query,
+                'selected': selected_run,
+                'latest': latest_run,
+                'completed': runs_list,
+            }
+        return jsonify(json_data)
+
+    elif query == 'trigger-histogram':
         device = request.args.get('device', None)
         board_id = request.args.get('board_id', -1)
-        #integral = request.args.get('integral', False)
         device_key = None
         if device == 'v1740' and int(board_id) in range(0, 8):
             device_key = 'v1740/board-{}-'.format(board_id)
@@ -93,8 +111,6 @@ def json():
         counts = np.sum(np.array(p.execute(), dtype=np.int64), axis=0)
         if type(counts) != np.ndarray:
             return jsonify(json_data)
-        #if integral:
-        #    return jsonify(data=np.sum(counts))
         data = [
             { 'bin': round(i, 1), 'count': j } for i, j in zip(bins, counts)
         ]
@@ -178,30 +194,6 @@ def json():
             'data': data,
             }
         return jsonify(json_data)
-
-    #elif query == 'mwpc-tdc-histograms':
-    #    bins = np.arange(200, 520, 1)
-    #    data_names = [
-    #        'tdc{0:02d}data'.format(tdc_index+1) for tdc_index in xrange(0, 16)
-    #        ]
-    #    data = [ [] for tdc_index in xrange(0, 16) ]
-    #    for tdc_index in xrange(0, 16):
-    #        keys = redis.keys(
-    #            key_prefix + 'mwpc/tdc-{}-histogram'.format(tdc_index+1)
-    #            )
-    #        p = redis.pipeline()
-    #        for key in keys:
-    #            p.lrange(key, 0, -1)
-    #        counts = np.sum(np.array(p.execute(), dtype=np.int64), axis=0)
-    #        data[tdc_index] = [
-    #            { 'bin': i, 'count': j } for i, j in zip(bins, counts)
-    #            ]
-    #    json_data = {
-    #        data_names[tdc_index]: data[tdc_index]
-    #        for tdc_index in xrange(0, 16)
-    #        }
-    #    json_data['query'] = query
-    #    return jsonify(json_data)
 
     elif query == 'v1751-tof-histogram':
         keys = redis.keys(key_prefix + 'v1751/tof-histogram')
