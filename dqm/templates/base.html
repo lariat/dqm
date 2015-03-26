@@ -44,21 +44,38 @@
             </li>
             {% endfor %}
           </ul>
+
           <ul class="nav navbar-nav navbar-right">
-            <li><a href="#"><strong>Run:</strong> 2981</a></li>
+            <li><a>Run:</a></li>
+            {#
+            <li><p class="navbar-text">Run:</p></li>
+            #}
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Dropdown <span class="caret"></span></a>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">4296 <span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
-                <li><a href="#">Action</a></li>
-                <li><a href="#">Another action</a></li>
-                <li><a href="#">Something else here</a></li>
+                <li class="dropdown-header">Live</li>
+                <li><a href="#">4296</a></li>
                 <li class="divider"></li>
-                <li class="dropdown-header">Nav header</li>
-                <li><a href="#">Separated link</a></li>
-                <li><a href="#">One more separated link</a></li>
+                <li class="dropdown-header">Completed Runs</li>
+                <li><a href="#">4294</a></li>
+                <li><a href="#">4295</a></li>
+              </ul>
+            </li>
+            <li><a>Spill:</a></li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">All <span class="caret"></span></a>
+              <ul class="dropdown-menu" role="menu">
+                <li class="dropdown-header">Live</li>
+                <li><a href="#">All</a></li>
+                <li class="divider"></li>
+                <li class="dropdown-header">Completed Spills</li>
+                <li><a href="#">1</a></li>
+                <li><a href="#">2</a></li>
+                <li><a href="#">3</a></li>
               </ul>
             </li>
           </ul>
+
         </div><!--/.nav-collapse -->
       </div>
     </nav>
@@ -66,6 +83,13 @@
     {% block content %}{% endblock %}
 
 {% include 'footer.html' %}
+
+    <script>
+    $(".dropdown-menu li a").click(function(){
+      var selText = $(this).text();
+      $(this).parents('.dropdown').find('.dropdown-toggle').html(selText+' <span class="caret"></span>');
+    });
+    </script>
 
   </body>
 </html>
