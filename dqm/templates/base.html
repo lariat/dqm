@@ -142,5 +142,24 @@
     });
     </script>
 
+    {#
+    <script>
+    (function($) {
+      //$('a[href="#"]').click(function(e) {
+      $('.dropdown-menu').click(function(e) {
+        e.preventDefault();
+      });
+    }) (jQuery);
+    </script>
+    #}
+
+    <script>
+    $(document).ready(function() {
+      $('.dropdown-menu').click(function(e) {
+        e.preventDefault();
+      });
+    });
+    </script>
+
   </body>
 </html>
