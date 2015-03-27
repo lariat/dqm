@@ -21,7 +21,7 @@ def index():
             'author': {'nickname': 'Carrie'},
             'body': 'LOL PORTLAND SUCKS'
         }
-    ]
+        ]
     return render_template('index.html',
                            title='Home',
                            user=user,
@@ -233,10 +233,10 @@ def session_form():
         return response
     return 'goodbye!'
 
-@app.route('/cookies')
-def cookies():
+@app.route('/cookie')
+def cookies_():
     cookie = request.cookies.get('cookie', 'hello!')
-    return render_template('cookies.html', cookie=cookie)
+    return render_template('cookie.html', cookie=cookie)
 
 @app.route('/cookie-form', methods=['GET', 'POST'])
 def cookie_form():
@@ -257,4 +257,4 @@ def random():
     data = list(np.random.randint(5, 10, 960))
     return jsonify(values=data)
 
-app.secret_key = '^\xe5\xfd\xfb\xe4\x93\xbd\xfe\xd7y\x17\x8f\x88\x18\xce\xf0^9\xc6\xf2\x93\xc1\xeb\xc9'
+app.secret_key = 'tU1Yqx7DTZCP2vVw2qHbj57x8dQJRn9sWmYMyQgjdwPLm5Zp84UImJoS4Tg0COR'
