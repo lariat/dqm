@@ -1,5 +1,6 @@
 from flask import (
-    render_template, request, jsonify, make_response, abort, redirect, url_for
+    render_template, request, jsonify, make_response, abort, redirect, url_for,
+    session
     )
 import numpy as np
 from redis import Redis
@@ -217,12 +218,18 @@ def json():
 
 # testing area below
 
-@app.route('/form', methods=['GET', 'POST'])
-def form():
+@app.route('/session')
+def session_():
+    if 'string' in session:
+        return render_template('session.html', string=session['string'])
+    else:
+        return render_template('session.html', string='hello!')
+
+@app.route('/session-form', methods=['GET', 'POST'])
+def session_form():
     if request.method == 'POST':
-        cookie = request.form.get('cookie', 'hello!')
-        response = make_response(redirect(url_for('cookies')))
-        response.set_cookie('cookie', value=cookie, max_age=86400)
+        session['string'] = request.form.get('string', 'hello!')
+        response = make_response(redirect(url_for('session_')))
         return response
     return 'goodbye!'
 
@@ -230,6 +237,15 @@ def form():
 def cookies():
     cookie = request.cookies.get('cookie', 'hello!')
     return render_template('cookies.html', cookie=cookie)
+
+@app.route('/cookie-form', methods=['GET', 'POST'])
+def cookie_form():
+    if request.method == 'POST':
+        cookie = request.form.get('cookie', 'hello!')
+        response = make_response(redirect(url_for('cookies')))
+        response.set_cookie('cookie', value=cookie, max_age=86400)
+        return response
+    return 'goodbye!'
 
 @app.route('/cubism')
 def cubism():
@@ -241,3 +257,4 @@ def random():
     data = list(np.random.randint(5, 10, 960))
     return jsonify(values=data)
 
+app.secret_key = '^\xe5\xfd\xfb\xe4\x93\xbd\xfe\xd7y\x17\x8f\x88\x18\xce\xf0^9\xc6\xf2\x93\xc1\xeb\xc9'
