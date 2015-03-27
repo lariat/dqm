@@ -57,6 +57,10 @@ def physics():
     return render_template('physics.html',
                            title="Physics")
 
+@app.route('/select', methods=['GET', 'POST'])
+def select():
+    return
+
 @app.route('/json')
 def json():
     query = request.args.get('q', None)
@@ -220,10 +224,8 @@ def json():
 
 @app.route('/session')
 def session_():
-    if 'string' in session:
-        return render_template('session.html', string=session['string'])
-    else:
-        return render_template('session.html', string='hello!')
+    return render_template('session.html',
+                           string=session.get('string', 'hello!'))
 
 @app.route('/session-form', methods=['GET', 'POST'])
 def session_form():
