@@ -59,13 +59,22 @@ def physics():
 
 @app.route('/select', methods=['GET', 'POST'])
 def select():
-    return
+    if request.method == 'POST':
+        latest_run = int(redis.get('dqm/latest-run'))
+        redir = request.form.get('redir', 'index')
+        session['selected_run'] = request.form.get('selected_run', latest_run)
+        response = make_response(redirect(url_for(redir)))
+        return response
+    return 'goodbye!'
 
 @app.route('/json')
 def json():
     query = request.args.get('q', None)
     run = request.args.get('r', '*')
     spill = request.args.get('s', '*')
+
+    latest_run = int(redis.get('dqm/latest-run'))
+    selected_run = session.get('selected_run', latest_run)
 
     json_data = {
         'query': query,
@@ -78,16 +87,15 @@ def json():
         key_prefix = 'dqm/run:*/spill:*/'
 
     if query == 'runs':
-        selected_run = 4295
         runs_list = []
         keys = redis.keys('dqm/run:*//spills')
         for key in keys:
             run_number = int(key.split('/')[1].split(':')[1])
             runs_list.append(run_number)
         runs_list.sort(reverse=True)
-        latest_run = runs_list.pop(0)
-        if latest_run != int(redis.get('dqm/latest-run')):
+        if runs_list.pop(0) != latest_run:
             return jsonify(json_data)
+        selected_run = session.get('selected_run', latest_run)
         json_data = {
                 'query': query,
                 'selected': selected_run,
@@ -258,5 +266,3 @@ def cubism():
 def random():
     data = list(np.random.randint(5, 10, 960))
     return jsonify(values=data)
-
-app.secret_key = 'tU1Yqx7DTZCP2vVw2qHbj57x8dQJRn9sWmYMyQgjdwPLm5Zp84UImJoS4Tg0COR'
