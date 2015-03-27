@@ -222,7 +222,7 @@ def form():
     if request.method == 'POST':
         cookie = request.form.get('cookie', 'hello!')
         response = make_response(redirect(url_for('cookies')))
-        response.set_cookie('cookie', cookie)
+        response.set_cookie('cookie', value=cookie, max_age=86400)
         return response
     return 'goodbye!'
 
