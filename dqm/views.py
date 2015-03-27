@@ -1,4 +1,6 @@
-from flask import render_template, request, jsonify
+from flask import (
+    render_template, request, jsonify, make_response, abort, redirect, url_for
+    )
 import numpy as np
 from redis import Redis
 from dqm import app
@@ -71,7 +73,7 @@ def json():
         key_prefix = 'dqm/run:*/spill:*/'
 
     if query == 'runs':
-        selected_run = 4296
+        selected_run = 4295
         runs_list = []
         keys = redis.keys('dqm/run:*//spills')
         for key in keys:
@@ -113,7 +115,7 @@ def json():
             return jsonify(json_data)
         data = [
             { 'bin': round(i, 1), 'count': j } for i, j in zip(bins, counts)
-        ]
+            ]
         json_data = {
             'query': query,
             'data': data,
@@ -166,7 +168,7 @@ def json():
             return jsonify(json_data)
         data = [
             { 'bin': i, 'count': j } for i, j in zip(bins, counts)
-        ]
+            ]
         json_data = {
             'query': query,
             'data': data,
@@ -188,7 +190,7 @@ def json():
             return jsonify(json_data)
         data = [
             { 'bin': i, 'count': j } for i, j in zip(bins, counts)
-        ]
+            ]
         json_data = {
             'query': query,
             'data': data,
@@ -215,34 +217,19 @@ def json():
 
 # testing area below
 
-@app.route('/json_dispatch')
-def json_dispatch():
-    x = 100 + 15 * np.random.randn(100)
-    min_bin = 40
-    max_bin = 160
-    bin_step = 5
-    number_bins = (max_bin - min_bin) / bin_step
-    counts, bins = np.histogram(x, bins=number_bins, range=(min_bin, max_bin))
-    data = [ { 'bin': i, 'count': j } for i, j in zip(bins[:-1], counts) ]
-    args = request.args
-    name = args['name']
-    json_data = {
-        'name': name,
-        'min_bin': min_bin,
-        'max_bin': max_bin,
-        'bin_step': bin_step,
-        'number_bins': number_bins,
-        'data': data,
-        }
-    return jsonify(json_data)
+@app.route('/form', methods=['GET', 'POST'])
+def form():
+    if request.method == 'POST':
+        cookie = request.form.get('cookie', 'hello!')
+        response = make_response(redirect(url_for('cookies')))
+        response.set_cookie('cookie', cookie)
+        return response
+    return 'goodbye!'
 
-@app.route('/req')
-def req():
-    args = request.args
-    name = args['name']
-    email = args['email']
-    message = "Hello, {} ({})!".format(name, email)
-    return message
+@app.route('/cookies')
+def cookies():
+    cookie = request.cookies.get('cookie', 'hello!')
+    return render_template('cookies.html', cookie=cookie)
 
 @app.route('/cubism')
 def cubism():
