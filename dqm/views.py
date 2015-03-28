@@ -69,21 +69,21 @@ def select_run_spill():
 @app.route('/json')
 def json():
     query = request.args.get('q', None)
-    run = request.args.get('r', '*')
-    spill = request.args.get('s', '*')
 
     latest_run = int(redis.get('dqm/latest-run'))
     selected_run = session.get('selected_run', latest_run)
+    selected_spill = session.get('selected_spill', '*')
 
     json_data = {
         'query': query,
         'data': [ { 'bin': 0, 'count': 1 }, { 'bin': 1, 'count': 0 } ],
         }
 
-    if run == '*' and spill == '*':
-        key_prefix = 'dqm/run:*//'
-    else:
-        key_prefix = 'dqm/run:*/spill:*/'
+    key_prefix = 'dqm/run:{}//'.format(selected_run)
+
+    if selected_spill != '*':
+        key_prefix = 'dqm/run:{}/spill:{}/'.format(selected_run,
+                                                   selected_spill)
 
     if query == 'runs':
         runs_list = []
