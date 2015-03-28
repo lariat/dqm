@@ -84,7 +84,7 @@
     <form method="POST" action="/select-run-spill" id="run-spill-selection-form">
       <input type="hidden" id="run-selection" name="run-selection" value="">
       <input type="hidden" id="spill-selection" name="spill-selection" value="All">
-      <input type="hidden" id="redirect-to" name="redirect-to" value="index">
+      <input type="hidden" id="redirect-to" name="redirect-to" value="{{ active_page }}">
     </form>
 
     <script src="{{ url_for('static', filename='js/run-spill-selection.js') }}"></script>
