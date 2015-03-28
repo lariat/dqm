@@ -11,21 +11,7 @@ redis = Redis()
 @app.route('/')
 @app.route('/index')
 def index():
-    user = {'nickname': 'Johnny'}  # fake user
-    posts = [  # fake array of posts
-        {
-            'author': {'nickname': 'Fred'},
-            'body': 'Beautiful day in Portland!'
-        },
-        {
-            'author': {'nickname': 'Carrie'},
-            'body': 'LOL PORTLAND SUCKS'
-        }
-        ]
-    return render_template('index.html',
-                           title='Home',
-                           user=user,
-                           posts=posts)
+    return render_template('index.html', title='Home')
 
 @app.route('/v1740')
 def v1740():
