@@ -57,15 +57,14 @@ def physics():
     return render_template('physics.html',
                            title="Physics")
 
-@app.route('/select', methods=['GET', 'POST'])
-def select():
-    if request.method == 'POST':
-        latest_run = int(redis.get('dqm/latest-run'))
-        redir = request.form.get('redir', 'index')
-        session['selected_run'] = request.form.get('selected_run', latest_run)
-        response = make_response(redirect(url_for(redir)))
-        return response
-    return 'goodbye!'
+@app.route('/select-run-spill', methods=['GET', 'POST'])
+def select_run_spill():
+    latest_run = int(redis.get('dqm/latest-run'))
+    redirect_to = request.form.get('redirect-to', 'index')
+    session['selected_run'] = request.form.get('run-selection', latest_run)
+    session['selected_spill'] = request.form.get('spill-selection', '*')
+    response = make_response(redirect(url_for(redirect_to)))
+    return response
 
 @app.route('/json')
 def json():

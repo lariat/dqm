@@ -80,26 +80,26 @@
                   <li><a href="#">All</a></li>
                   <li class="divider"></li>
                   <li class="dropdown-header">Completed Spills</li>
-                  <li><a href="#">1</a></li>
-                  <li><a href="#">2</a></li>
-                  <li><a href="#">3</a></li>
-                  <li><a href="#">4</a></li>
-                  <li><a href="#">5</a></li>
-                  <li><a href="#">6</a></li>
-                  <li><a href="#">7</a></li>
-                  <li><a href="#">8</a></li>
-                  <li><a href="#">9</a></li>
-                  <li><a href="#">10</a></li>
-                  <li><a href="#">11</a></li>
-                  <li><a href="#">12</a></li>
-                  <li><a href="#">13</a></li>
-                  <li><a href="#">14</a></li>
-                  <li><a href="#">15</a></li>
-                  <li><a href="#">16</a></li>
-                  <li><a href="#">17</a></li>
-                  <li><a href="#">18</a></li>
-                  <li><a href="#">19</a></li>
-                  <li><a href="#">20</a></li>
+                  <li name="spill" value="1"><a href="#">1</a></li>
+                  <li name="spill" value="2"><a href="#">2</a></li>
+                  <li name="spill" value="3"><a href="#">3</a></li>
+                  <li name="spill" value="4"><a href="#">4</a></li>
+                  <li name="spill" value="5"><a href="#">5</a></li>
+                  <li name="spill" value="6"><a href="#">6</a></li>
+                  <li name="spill" value="7"><a href="#">7</a></li>
+                  <li name="spill" value="8"><a href="#">8</a></li>
+                  <li name="spill" value="9"><a href="#">9</a></li>
+                  <li name="spill" value="10"><a href="#">10</a></li>
+                  <li name="spill" value="11"><a href="#">11</a></li>
+                  <li name="spill" value="12"><a href="#">12</a></li>
+                  <li name="spill" value="13"><a href="#">13</a></li>
+                  <li name="spill" value="14"><a href="#">14</a></li>
+                  <li name="spill" value="15"><a href="#">15</a></li>
+                  <li name="spill" value="16"><a href="#">16</a></li>
+                  <li name="spill" value="17"><a href="#">17</a></li>
+                  <li name="spill" value="18"><a href="#">18</a></li>
+                  <li name="spill" value="19"><a href="#">19</a></li>
+                  <li name="spill" value="20"><a href="#">20</a></li>
                 </ul>
               </li>
             </ul>
@@ -119,15 +119,35 @@
     $(document).ready(function() {
       $.getJSON($SCRIPT_ROOT + '/json?q=runs', function(data) {
         //console.log(data.completed)
-        $('#selected-run').html(JSON.stringify(data.selected));
+        $('#selected-run').html(data.selected);
         $('#runs').append('<li class="dropdown-header">Live</li>');
-        $('#runs').append('<li><a href="#">' + data.latest + '</a></li>');
+        $('#runs').append('<li class="run-option" value="' + data.latest + '"><a href="#">' + data.latest + '</a></li>');
         $('#runs').append('<li class="divider"></li>');
         $('#runs').append('<li class="dropdown-header">Completed Runs</li>');
         for (var i = 0; i < data.completed.length; ++i) {
             //console.log(data.completed[i])
-            $('#runs').append('<li><a href="#">' + data.completed[i] + '</a></li>');
+            $('#runs').append('<li class="run-option" value="' + data.completed[i] + '"><a href="#">' + data.completed[i] + '</a></li>');
         }
+
+        //$("#runs li").click(function() {
+        //  $("#run-selection").val($(this).attr("value"));
+        //});
+
+        $('#runs .run-option').click(function() {
+          event.preventDefault();
+          $("#run-selection").val($(this).attr("value"));
+          var form_data = $("#run-spill-selection-form").serialize();
+          //alert(formdata);
+          $.ajax({
+            type: "POST",
+            url: "/select-run-spill",
+            data: form_data,
+            success: function() {
+              window.location.reload(true);
+            }
+          });
+        });
+
       });
     });
     </script>
@@ -142,17 +162,6 @@
     });
     </script>
 
-    {#
-    <script>
-    (function($) {
-      //$('a[href="#"]').click(function(e) {
-      $('.dropdown-menu').click(function(e) {
-        e.preventDefault();
-      });
-    }) (jQuery);
-    </script>
-    #}
-
     <script>
     $(document).ready(function() {
       $('.dropdown-menu').click(function(e) {
@@ -160,6 +169,48 @@
       });
     });
     </script>
+
+    <form method="POST" action="/select-run-spill" id="run-spill-selection-form">
+      <input type="hidden" id="run-selection" name="run-selection" value="NULL">
+      <input type="hidden" id="spill-selection" name="spill-selection" value="*">
+      <input type="hidden" id="redirect-to" name="redirect-to" value="index">
+      <input type="button" value="Get hidden value" name="submit" id="btnSubmit">
+      <input type="submit">
+    </form>
+
+    <script>
+    $(document).ready(function() {
+      //setTimeout(function() {
+      //  $("#runs li").click(function() {
+      //    $("#run-selection").val($(this).attr("value"));
+      //  });
+
+      //  //This is to show the hidden value
+      //  $("#btnSubmit").click(function() {
+      //    alert($("#run-selection").val());
+      //  });
+      //}, 100);
+
+      //$("#runs li").click(function() {
+      //  $("#run-selection").val($(this).attr("value"));
+      //});
+
+      //This is to show the hidden value
+      $("#btnSubmit").click(function() {
+        alert($("#run-selection").val());
+      });
+    });
+    </script>
+
+    {#
+    <script>
+    $(document).ready(function() {
+      setTimeout(function() {
+        $('#runs').empty();
+      }, 15000);
+    });
+    </script>
+    #}
 
   </body>
 </html>
