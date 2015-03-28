@@ -133,11 +133,11 @@
         //  $("#run-selection").val($(this).attr("value"));
         //});
 
-        $('#runs .run-option').click(function() {
-          event.preventDefault();
+        $('#runs .run-option').click(function(e) {
+          e.preventDefault();
           $("#run-selection").val($(this).attr("value"));
           var form_data = $("#run-spill-selection-form").serialize();
-          //alert(formdata);
+          //alert(form_data);
           $.ajax({
             type: "POST",
             url: "/select-run-spill",
@@ -153,13 +153,13 @@
     </script>
 
     <script>
-    $('body').on('click', '.option li', function() {
-      var i = $(this).parents('.select').attr('id');
-      var v = $(this).children().text();
-      var o = $(this).attr('id');
-      $('#' + i + ' .selected').attr('id', o);
-      $('#' + i + ' .selected').text(v);
-    });
+    //$('body').on('click', '.option li', function() {
+    //  var i = $(this).parents('.select').attr('id');
+    //  var v = $(this).children().text();
+    //  var o = $(this).attr('id');
+    //  $('#' + i + ' .selected').attr('id', o);
+    //  $('#' + i + ' .selected').text(v);
+    //});
     </script>
 
     <script>
