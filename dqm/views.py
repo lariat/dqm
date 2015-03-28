@@ -62,7 +62,7 @@ def select_run_spill():
     latest_run = int(redis.get('dqm/latest-run'))
     redirect_to = request.form.get('redirect-to', 'index')
     session['selected_run'] = request.form.get('run-selection', latest_run)
-    session['selected_spill'] = request.form.get('spill-selection', '*')
+    session['selected_spill'] = request.form.get('spill-selection', 'All')
     response = make_response(redirect(url_for(redirect_to)))
     return response
 
@@ -72,16 +72,16 @@ def json():
 
     latest_run = int(redis.get('dqm/latest-run'))
     selected_run = session.get('selected_run', latest_run)
-    selected_spill = session.get('selected_spill', '*')
+    selected_spill = session.get('selected_spill', 'All')
 
     json_data = {
         'query': query,
-        'data': [ { 'bin': 0, 'count': 1 }, { 'bin': 1, 'count': 0 } ],
+        'data': [ { 'bin': 0, 'count': 0 }, { 'bin': 1, 'count': 0 } ],
         }
 
     key_prefix = 'dqm/run:{}//'.format(selected_run)
 
-    if selected_spill != '*':
+    if selected_spill != 'All':
         key_prefix = 'dqm/run:{}/spill:{}/'.format(selected_run,
                                                    selected_spill)
 
@@ -94,12 +94,22 @@ def json():
         runs_list.sort(reverse=True)
         if runs_list.pop(0) != latest_run:
             return jsonify(json_data)
-        selected_run = session.get('selected_run', latest_run)
+        #selected_run = session.get('selected_run', latest_run)
         json_data = {
                 'query': query,
                 'selected': selected_run,
                 'latest': latest_run,
                 'completed': runs_list,
+            }
+        return jsonify(json_data)
+
+    elif query == 'spills':
+        spills_list_key = 'dqm/run:{}//spills'.format(selected_run)
+        spills_list = map(int, redis.lrange(spills_list_key, 0, -1))
+        json_data = {
+                'query': query,
+                'selected': selected_spill,
+                'completed': spills_list,
             }
         return jsonify(json_data)
 
@@ -156,8 +166,6 @@ def json():
             for key in keys:
                 p.lrange(key, 0, -1)
             counts = np.sum(np.array(p.execute(), dtype=np.int64), axis=0)
-            if type(counts) != np.ndarray:
-                return jsonify(json_data)
             counts_dict[device_value] = np.sum(counts)
         json_data = counts_dict
         return jsonify(json_data)
