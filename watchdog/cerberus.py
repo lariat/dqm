@@ -8,7 +8,7 @@ from datetime import datetime
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 
-dqm_root = '/home/nfs/lariatdqm/repos/dqm'
+dqm_root = '/home/nfs/lariatdqm/local/dqm'
 log_dir = '/lariat/data/users/lariatdqm/log'
 daq_file_dir = '/daqdata/dropbox'
 dqm_file_dir = '/lariat/data/users/lariatdqm/dqm'
