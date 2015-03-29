@@ -11,11 +11,11 @@ from watchdog.events import PatternMatchingEventHandler
 dqm_root = '/home/nfs/lariatdqm/local/dqm'
 log_dir = '/lariat/data/users/lariatdqm/log'
 daq_file_dir = '/daqdata/dropbox'
-dqm_file_dir = '/lariat/data/users/lariatdqm/dqm'
+dqm_file_dir = '/daqdata/dqm'
 
-dqm_root = '/Users/johnnyho/repos/dqm/dqm'
-log_dir = '/Users/johnnyho/repos/dqm/data/log'
-dqm_file_dir = '/Users/johnnyho/repos/dqm/data/test'
+#dqm_root = '/Users/johnnyho/repos/dqm/dqm'
+#log_dir = '/Users/johnnyho/repos/dqm/data/log'
+#dqm_file_dir = '/Users/johnnyho/repos/dqm/data/test'
 
 def parse_daq(file_path):
     token_list = file_path.split('_')
