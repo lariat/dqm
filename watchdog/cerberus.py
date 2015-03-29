@@ -89,10 +89,6 @@ class DaqFileHandler(PatternMatchingEventHandler):
         stdout_log_file.close()
         stderr_log_file.close()
 
-        print "output_file_path:", output_file_path
-        print "stdout_log_file_path:", stdout_log_file_path
-        print "stderr_log_file_path:", stderr_log_file_path
-
     def on_created(self, event):
         self.log(event)
         self.process(event)
@@ -178,7 +174,7 @@ class DqmFileHandler(PatternMatchingEventHandler):
 if __name__ == '__main__':
 
     observer = Observer()
-    #observer.schedule(DaqFileHandler(), path=daq_file_dir)
+    observer.schedule(DaqFileHandler(), path=daq_file_dir)
     observer.schedule(DqmFileHandler(), path=dqm_file_dir)
     observer.start()
 
