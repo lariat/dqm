@@ -145,7 +145,7 @@ class DqmFileHandler(PatternMatchingEventHandler):
 
         cmd = [
             'python',
-            dqm_root + '/analyze.py',
+            dqm_root + '/dqm/analyze.py',
             input_file_path,
             ]
 
