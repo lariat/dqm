@@ -8,9 +8,14 @@ from datetime import datetime
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 
+dqm_root = '/home/nfs/lariatdqm/repos/dqm'
 log_dir = '/lariat/data/users/lariatdqm/log'
 daq_file_dir = '/daqdata/dropbox'
 dqm_file_dir = '/lariat/data/users/lariatdqm/dqm'
+
+dqm_root = '/Users/johnnyho/repos/dqm/dqm'
+log_dir = '/Users/johnnyho/repos/dqm/data/log'
+dqm_file_dir = '/Users/johnnyho/repos/dqm/data/test'
 
 def parse_daq(file_path):
     token_list = file_path.split('_')
@@ -49,9 +54,15 @@ class DaqFileHandler(PatternMatchingEventHandler):
         print log_message
 
     def process(self, event):
-        print 'Processing DAQ file: {}'.format(event.src_path)
 
-        run, spill = parse_daq(event.src_path)
+        if hasattr(event, 'dest_path'):
+            input_file_path = event.dest_path
+        else:
+            input_file_path = event.src_path
+
+        print 'Processing DAQ file: {}'.format(input_file_path)
+
+        run, spill = parse_daq(input_file_path)
 
         output_file_path = dqm_file_dir + \
             '/dqm_run_{}_spill_{}.root'.format(run, spill)
@@ -61,12 +72,22 @@ class DaqFileHandler(PatternMatchingEventHandler):
         stdout_log_file_path = log_file_path + '.out'
         stderr_log_file_path = log_file_path + '.err'
 
-        #subprocess.call(
-        #    [
-        #        'lar', '-c', 'data_quality.fcl', event.src_path,
-        #        '-T', output_file_path
-        #        ]
-        #    )
+        cmd = [
+            'lar',
+            '-c',
+            'data_quality.fcl',
+            event.src_path,
+            '-T',
+            output_file_path,
+            ]
+
+        stdout_log_file = open(stdout_log_file_path, 'w')
+        stderr_log_file = open(stderr_log_file_path, 'w')
+
+        subprocess.call(cmd, stdout=stdout_log_file, stderr=stderr_log_file)
+
+        stdout_log_file.close()
+        stderr_log_file.close()
 
         print "output_file_path:", output_file_path
         print "stdout_log_file_path:", stdout_log_file_path
@@ -84,6 +105,7 @@ class DaqFileHandler(PatternMatchingEventHandler):
 
     def on_moved(self, event):
         self.log(event)
+        self.process(event)
 
 class DqmFileHandler(PatternMatchingEventHandler):
     patterns = [ '*dqm_run_*_spill_*.root' ]
@@ -125,10 +147,19 @@ class DqmFileHandler(PatternMatchingEventHandler):
         stdout_log_file_path = log_file_path + '.out'
         stderr_log_file_path = log_file_path + '.err'
 
-        print "stdout_log_file_path:", stdout_log_file_path
-        print "stderr_log_file_path:", stderr_log_file_path
+        cmd = [
+            'python',
+            dqm_root + '/analyze.py',
+            input_file_path,
+            ]
 
-        #subprocess.call([ 'python' ])
+        stdout_log_file = open(stdout_log_file_path, 'w')
+        stderr_log_file = open(stderr_log_file_path, 'w')
+
+        subprocess.call(cmd, stdout=stdout_log_file, stderr=stderr_log_file)
+
+        stdout_log_file.close()
+        stderr_log_file.close()
 
     def on_created(self, event):
         self.log(event)
