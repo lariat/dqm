@@ -105,7 +105,7 @@ $(document).ready(function() {
   }
 
   var timeout_runs;
-  function load_next_spills() {
+  function load_next_runs() {
     update_runs();
     timeout_runs = setTimeout(load_next_runs, 25000);
   }
@@ -120,7 +120,6 @@ $(document).ready(function() {
 
   $.getJSON($SCRIPT_ROOT + '/json?q=selected-run-spill', function(data) {
     if (data.selected_run == data.latest_run) {
-      load_next();
       load_next_spills();
     }
   });
