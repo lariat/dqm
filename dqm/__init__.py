@@ -1,5 +1,13 @@
 from flask import Flask
+
+# see http://flask.pocoo.org/docs/patterns/packages/
 app = Flask(__name__)
+
+if not app.debug:
+    # see http://flask.pocoo.org/docs/errorhandling/
+    import logging
+    app.logger.addHandler(logging.StreamHandler())
+
 from dqm import views
 
 # not really a secret, but you are not to be told what this is so shush
