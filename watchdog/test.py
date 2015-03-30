@@ -28,7 +28,8 @@ class RootFileHandler(PatternMatchingEventHandler):
         if hasattr(event, 'dest_path'):
             log_message += ' => {}'.format(event.dest_path)
 
-        print log_message
+        sys.stdout.write(log_message + '\n')
+        sys.stdout.flush()
 
     def process(self, event):
         """
