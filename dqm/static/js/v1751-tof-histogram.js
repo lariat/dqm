@@ -186,6 +186,10 @@
     timeout = setTimeout(load_next, 15000);
   }
 
-  load_next();
+  $.getJSON($SCRIPT_ROOT + '/json?q=runs', function(data) {
+    if (data.selected == data.latest) {
+      load_next();
+    }
+  });
 
 }) ();

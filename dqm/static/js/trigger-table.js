@@ -4,10 +4,6 @@
     fill_table();
   });
 
-  setInterval(function() {
-    fill_table();
-  }, 15000);
-
   function fill_table() {
     $.getJSON($SCRIPT_ROOT + '/json?q=trigger-counts', function (data) {
       $("#v1751-board-0-triggers").html(JSON.stringify(data.v1751_board_0));
@@ -24,5 +20,17 @@
       $("#v1740-board-7-triggers").html(JSON.stringify(data.v1740_board_7));
     });
   }
+
+  var timeout;
+  function load_next() {
+    fill_table();
+    timeout = setTimeout(load_next, 15000);
+  }
+
+  $.getJSON($SCRIPT_ROOT + '/json?q=runs', function(data) {
+    if (data.selected == data.latest) {
+      load_next();
+    }
+  });
 
 }) ();
