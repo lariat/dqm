@@ -100,6 +100,15 @@ def json():
             }
         return jsonify(json_data)
 
+    elif query == 'selected-run-spill':
+        json_data = {
+                'query': query,
+                'latest_run': latest_run,
+                'selected_run': selected_run,
+                'selected_spill': selected_spill,
+            }
+        return jsonify(json_data)
+
     elif query == 'trigger-histogram':
         device = request.args.get('device', None)
         board_id = request.args.get('board_id', -1)

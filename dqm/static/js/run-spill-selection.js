@@ -21,6 +21,10 @@ $(document).ready(function() {
 
     ajax_runs();
 
+    if (data.selected == data.latest) {
+      load_next_spills();
+    }
+
   });
 
   $.getJSON($SCRIPT_ROOT + '/json?q=spills', function(data) {
@@ -70,12 +74,27 @@ $(document).ready(function() {
     });
   }
 
-  //function update_runs() {
-  //  $.getJSON($SCRIPT_ROOT + '/json?q=runs', function(data) {
-  //    if (latest_run != data.latest) {
-  //    }
-  //  });
-  //}
+  function update_runs() {
+    $.getJSON($SCRIPT_ROOT + '/json?q=runs', function(data) {
+      if (latest_run != data.latest) {
+
+        selected_run = data.selected;
+        latest_run = data.latest;
+        completed_runs = data.completed;
+
+        $('#runs .run-option').remove()
+        $('#selected-run').html(data.selected);
+        $("#run-selection").val(data.selected);
+        $('#runs #latest-run').after('<li class="run-option" value="' + data.latest + '"><a href="#">' + data.latest + '</a></li>');
+
+        for (var i = 0; i < data.completed.length; ++i) {
+          $('#runs').append('<li class="run-option" value="' + data.completed[i] + '"><a href="#">' + data.completed[i] + '</a></li>');
+        }
+
+        ajax_runs();
+      }
+    });
+  }
 
   function update_spills() {
     $.getJSON($SCRIPT_ROOT + '/json?q=spills', function(data) {
@@ -89,11 +108,24 @@ $(document).ready(function() {
     });
   }
 
+  var timeout_runs;
+  function load_next_spills() {
+    update_runs();
+    timeout_runs = setTimeout(load_next_runs, 25000);
+  }
+
   var timeout_spills;
   function load_next_spills() {
     update_spills();
     timeout_spills = setTimeout(load_next_spills, 15000);
   }
+
   load_next_spills();
+
+  //$.getJSON($SCRIPT_ROOT + '/json?q=runs', function(data) {
+  //  if (data.selected == data.latest) {
+  //    load_next_spills();
+  //  }
+  //});
 
 });
