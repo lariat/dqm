@@ -55,7 +55,11 @@
                 <button type="button" class="btn btn-default navbar-btn dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                   <span class="selected" id="selected-run"></span> <span class="caret"></span>
                 </button>
-                <ul class="dropdown-menu scrollable-menu option" id="runs" role="menu"></ul>
+                <ul class="dropdown-menu scrollable-menu option" id="runs" role="menu">
+                  <li class="dropdown-header" id="latest-run">Live</li>
+                  <li class="divider"></li>
+                  <li class="dropdown-header" id="completed-runs">Completed Runs</li>
+                </ul>
               </li>
             </ul>
 
@@ -66,7 +70,11 @@
                 <button type="button" class="btn btn-default navbar-btn dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                   <span class="selected" id="selected-spill">All</span> <span class="caret"></span>
                 </button>
-                <ul class="dropdown-menu scrollable-menu option" id="spills" role="menu"></ul>
+                <ul class="dropdown-menu scrollable-menu option" id="spills" role="menu">
+                  <li class="spill-option" value="All"><a href="#">All</a></li>
+                  <li class="divider"></li>
+                  <li class="dropdown-header" id="completed-spill">Completed Spills</li>
+                </ul>
               </li>
             </ul>
 
