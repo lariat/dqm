@@ -21,10 +21,6 @@ $(document).ready(function() {
 
     ajax_runs();
 
-    if (data.selected == data.latest) {
-      load_next_spills();
-    }
-
   });
 
   $.getJSON($SCRIPT_ROOT + '/json?q=spills', function(data) {
@@ -120,12 +116,13 @@ $(document).ready(function() {
     timeout_spills = setTimeout(load_next_spills, 15000);
   }
 
-  load_next_spills();
+  load_next_runs();
 
-  //$.getJSON($SCRIPT_ROOT + '/json?q=runs', function(data) {
-  //  if (data.selected == data.latest) {
-  //    load_next_spills();
-  //  }
-  //});
+  $.getJSON($SCRIPT_ROOT + '/json?q=selected-run-spill', function(data) {
+    if (data.selected_run == data.latest_run) {
+      load_next();
+      load_next_spills();
+    }
+  });
 
 });
