@@ -1,14 +1,19 @@
 $(document).ready(function() {
 
+  var selected_run = 0;
   var number_completed_spills = 0;
 
   $.getJSON($SCRIPT_ROOT + '/json?q=runs', function(data) {
+
+    selected_run = data.selected;
+
     $('#selected-run').html(data.selected);
     $("#run-selection").val(data.selected);
     $('#runs').append('<li class="dropdown-header">Live</li>');
     $('#runs').append('<li class="run-option" value="' + data.latest + '"><a href="#">' + data.latest + '</a></li>');
     $('#runs').append('<li class="divider"></li>');
     $('#runs').append('<li class="dropdown-header">Completed Runs</li>');
+
     for (var i = 0; i < data.completed.length; ++i) {
       $('#runs').append('<li class="run-option" value="' + data.completed[i] + '"><a href="#">' + data.completed[i] + '</a></li>');
     }
@@ -25,6 +30,7 @@ $(document).ready(function() {
     $('#spills').append('<li class="spill-option" value="All"><a href="#">All</a></li>');
     $('#spills').append('<li class="divider"></li>');
     $('#spills').append('<li class="dropdown-header">Completed Spills</li>');
+
     for (var i = 0; i < data.completed.length; ++i) {
       $('#spills').append('<li class="spill-option" value="' + data.completed[i] + '"><a href="#">' + data.completed[i] + '</a></li>');
     }
@@ -69,7 +75,7 @@ $(document).ready(function() {
 
   function update_spills() {
     $.getJSON($SCRIPT_ROOT + '/json?q=spills', function(data) {
-      if (number_completed_spills < data.completed.length) {
+      if (selected_run == data.run && number_completed_spills < data.completed.length) {
         for (var i = number_completed_spills; i < data.completed.length; ++i) {
           $('#spills').append('<li class="spill-option" value="' + data.completed[i] + '"><a href="#">' + data.completed[i] + '</a></li>');
           number_completed_spills = data.completed.length;

@@ -57,7 +57,7 @@ def json():
     query = request.args.get('q', None)
 
     latest_run = int(redis.get('dqm/latest-run'))
-    selected_run = session.get('selected_run', latest_run)
+    selected_run = int(session.get('selected_run', latest_run))
     selected_spill = session.get('selected_spill', 'All')
 
     json_data = {
@@ -94,6 +94,7 @@ def json():
         spills_list = map(int, redis.lrange(spills_list_key, 0, -1))
         json_data = {
                 'query': query,
+                'run': selected_run,
                 'selected': selected_spill,
                 'completed': spills_list,
             }
