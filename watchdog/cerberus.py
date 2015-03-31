@@ -5,17 +5,43 @@ import subprocess
 import time
 from datetime import datetime
 
+import logging
+from logging.handlers import RotatingFileHandler
+
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 
+log_dir = '/lariat/data/users/lariatdqm/log/watchdog'
+log_file_path = log_dir + '/proc.log'
 dqm_root = '/home/nfs/lariatdqm/local/dqm'
-log_dir = '/lariat/data/users/lariatdqm/log'
 daq_file_dir = '/daqdata/dropbox'
 dqm_file_dir = '/daqdata/dqm'
 
-#dqm_root = '/Users/johnnyho/repos/dqm/dqm'
-#log_dir = '/Users/johnnyho/repos/dqm/data/log'
-#dqm_file_dir = '/Users/johnnyho/repos/dqm/data/test'
+file_name = 'tmp_multiple_rotating.log'
+format = '%(asctime)s %(name)-12s %(levelname)-8s %(message)s'
+date_format = '%Y-%m-%d %H:%M:%S'
+
+formatter = logging.Formatter(
+    fmt=format,
+    datefmt=date_format
+    )
+
+handler = RotatingFileHandler(
+    filename=log_file_path,
+    mode='a',
+    maxBytes=50000000,
+    backupCount=10,
+    )
+
+handler.setFormatter(formatter)
+handler.setLevel(logging.DEBUG)
+
+logger_daq = logging.getLogger('subproc_daq')
+logger_dqm = logging.getLogger('subproc_dqm')
+logger_daq.setLevel(logging.DEBUG)
+logger_dqm.setLevel(logging.DEBUG)
+logger_daq.addHandler(handler)
+logger_dqm.addHandler(handler)
 
 def parse_daq(file_path):
     token_list = file_path.split('_')
@@ -68,11 +94,6 @@ class DaqFileHandler(PatternMatchingEventHandler):
         output_file_path = dqm_file_dir + \
             '/dqm_run_{}_spill_{}.root'.format(run, spill)
 
-        log_file_path = log_dir + \
-            '/larsoft/larsoft_dqm_run_{}_spill_{}'.format(run, spill)
-        stdout_log_file_path = log_file_path + '.out'
-        stderr_log_file_path = log_file_path + '.err'
-
         cmd = [
             'lar',
             '-c',
@@ -82,13 +103,15 @@ class DaqFileHandler(PatternMatchingEventHandler):
             output_file_path,
             ]
 
-        stdout_log_file = open(stdout_log_file_path, 'w')
-        stderr_log_file = open(stderr_log_file_path, 'w')
+        proc = subprocess.Popen(
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+            )
 
-        subprocess.call(cmd, stdout=stdout_log_file, stderr=stderr_log_file)
-
-        stdout_log_file.close()
-        stderr_log_file.close()
+        while True:
+            line = proc.stdout.readline()
+            if not line:
+                break
+            logger_daq.info(line.rstrip('\n'))
 
     def on_created(self, event):
         self.log(event)
@@ -138,26 +161,21 @@ class DqmFileHandler(PatternMatchingEventHandler):
 
         print 'Processing DQM file: {}'.format(input_file_path)
 
-        run, spill = parse_dqm(input_file_path)
-
-        log_file_path = log_dir + \
-            '/dqm/dqm_analyze_run_{}_spill_{}'.format(run, spill)
-        stdout_log_file_path = log_file_path + '.out'
-        stderr_log_file_path = log_file_path + '.err'
-
         cmd = [
             'python',
             dqm_root + '/dqm/analyze.py',
             input_file_path,
             ]
 
-        stdout_log_file = open(stdout_log_file_path, 'w')
-        stderr_log_file = open(stderr_log_file_path, 'w')
+        proc = subprocess.Popen(
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+            )
 
-        subprocess.call(cmd, stdout=stdout_log_file, stderr=stderr_log_file)
-
-        stdout_log_file.close()
-        stderr_log_file.close()
+        while True:
+            line = proc.stdout.readline()
+            if not line:
+                break
+            logger_dqm.info(line.rstrip('\n'))
 
     def on_created(self, event):
         self.log(event)
