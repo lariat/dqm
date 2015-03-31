@@ -4,7 +4,7 @@ from logging.handlers import RotatingFileHandler
 
 cmd = ['ls', '-l']
 
-file_name = 'tmp_rotating_multiple.log'
+file_name = 'tmp_multiple_rotating.log'
 format = '%(asctime)s %(name)-12s %(levelname)-8s %(message)s'
 date_format = '%Y-%m-%d %H:%M:%S'
 
