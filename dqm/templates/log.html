@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% set active_page = "log" %}
+
+{% block content %}
+
+    <style>
+    .level-success {
+      background-color: #51a351;
+    }
+    .level-info {
+      /* background-color: #2f96b4; */
+      color: #000;
+    }
+    .level-warning {
+      background-color: #f89406;
+      color: #333;
+      padding-left: 3px;
+    }
+    .level-error {
+      background-color: #bd362f;
+    }
+    </style>
+
+    <div class="container">
+
+      <div class="panel panel-primary">
+        <div class="panel-heading">
+          <h3 class="panel-title">Log messages</h3>
+        </div>
+        <div class="panel-body" id="log-messages">
+          {% for post in posts %}
+          <div class="level-{{ post.level }}"><p>[{{ post.timestamp }}] [Run {{ post.run }}] [Spill {{ post.spill }}] {{ post.message }}</p></div>
+          {% endfor %}
+        </div>
+      </div>
+
+    </div>
+
+{% include 'scripts.html' %}
+
+    <script>
+    $(document).ready(function() {
+
+      var latest_spill;
+
+      $.getJSON($SCRIPT_ROOT + '/json?q=selected-run-spill', function(data) {
+        latest_spill = data.latest_spill;
+      });
+
+      function update_log() {
+        $.getJSON($SCRIPT_ROOT + '/json?q=latest-log', function(data) {
+          if (latest_spill != data.latest_spill) {
+            for (var i = 0; i < data.messages.length; ++i) {
+              $('#log-messages').append('<div class="' + data.messages[i].level + '"><p>[' + data.messages[i].timestamp + '] [Run ' + data.messages[i].run + '] [Spill ' + data.messages[i].spill + '] ' + data.messages[i].message + '</p>');
+            }
+            latest_spill = data.latest_spill;
+          }
+        });
+      }
+
+      var timeout_log;
+      function load_next_log() {
+        update_log();
+        timeout_log = setTimeout(load_next_log, 15000);
+      }
+
+      $.getJSON($SCRIPT_ROOT + '/json?q=selected-run-spill', function(data) {
+        if (data.selected_run == data.latest_run && data.selected_spill == "All") {
+          load_next_log();
+        }
+      });
+
+    });
+    </script>
+
+{% endblock %}

@@ -4,6 +4,7 @@ import os
 import sys
 import inspect
 import argparse
+from datetime import datetime
 
 import numpy as np
 import root_numpy as rnp
@@ -126,6 +127,10 @@ args = parser.parse_args()
 
 file_path = args.file
 
+log_messages = []
+datetime_format = '%Y-%m-%d %H:%M:%S'
+date_time = datetime.now().strftime(datetime_format)
+
 # attempt connection to redis server
 redis = Redis()
 try:
@@ -146,8 +151,9 @@ key_timeout = 604800  # each count is 1 second
 run_key_prefix = 'dqm/run:{}//'.format(run_number)
 spill_key_prefix = 'dqm/run:{}/spill:{}/'.format(run_number, spill_number)
 
-# set key for latest run analyzed
+# set key for latest run/spill analyzed
 latest_run_key = 'dqm/latest-run'
+latest_spill_key = 'dqm/latest-spill'
 
 # set key that stores spill numbers analyzed in this run
 spills_list_key = run_key_prefix + 'spills'
@@ -155,8 +161,15 @@ spills_list_key = run_key_prefix + 'spills'
 # set key for this analysis script
 analyze_key = spill_key_prefix + 'analyze'
 
+# set key for spill time stamp and send to redis
+time_stamp_key = spill_key_prefix + 'timestamp'
+redis.setex(time_stamp_key, time_stamp, key_timeout)
+
+# set key prefix for log messages
+log_message_key_prefix = spill_key_prefix + 'log:'
+
 # tell redis that we are currently analyzing this file
-redis.set(analyze_key, 1)
+redis.setex(analyze_key, 1, key_timeout)
 
 v1740_ok, v1751_ok, mwpc_ok, wut_ok = test_root_file(file_path)
 
@@ -178,6 +191,15 @@ if spill_number in spills_list:
     print "Spill file has already been analyzed: {}".format(file_path)
     print "Exiting with exit status {}".format(exit_status)
     sys.exit(exit_status)
+
+# tell redis that this is the latest run/spill analyzed and
+# add this spill number to list of analyzed spills
+p = redis.pipeline()
+p.set(latest_run_key, run_number)
+p.set(latest_spill_key, spill_number)
+p.rpush(spills_list_key, spill_number)
+p.expire(spills_list_key, key_timeout)
+p.execute()
 
 #/////////////////////////////////////////////////////////////
 # CAEN V1740
@@ -215,9 +237,28 @@ if v1740_ok:
         p.expire(v1740_trigger_histogram_keys[board_id], key_timeout)
     p.execute()
 
+    # tell redis that this v1740 tree is okay
+    log_messages.append(
+        {
+            'timestamp': datetime.now().strftime(datetime_format),
+            'level': 'info',
+            'message': 'Triggers are OK in CAEN V1740 boards.',
+            'run': run_number,
+            'spill': spill_number,
+            }
+        )
+
 else:
     # tell redis that this v1740 tree is bad
-    pass
+    log_messages.append(
+        {
+            'timestamp': datetime.now().strftime(datetime_format),
+            'level': 'warning',
+            'message': 'No triggers in any CAEN V1740 boards!',
+            'run': run_number,
+            'spill': spill_number,
+            }
+        )
 
 #/////////////////////////////////////////////////////////////
 # CAEN V1751
@@ -296,9 +337,28 @@ if v1751_ok:
     p.expire(v1751_tof_histogram_key, key_timeout)
     p.execute()
 
+    # tell redis that this v1751 tree is okay
+    log_messages.append(
+        {
+            'timestamp': datetime.now().strftime(datetime_format),
+            'level': 'info',
+            'message': 'Triggers are OK in CAEN V1751 boards.',
+            'run': run_number,
+            'spill': spill_number,
+            }
+        )
+
 else:
     # tell redis that this v1751 tree is bad
-    pass
+    log_messages.append(
+        {
+            'timestamp': datetime.now().strftime(datetime_format),
+            'level': 'warning',
+            'message': 'No triggers in any CAEN V1751 boards!',
+            'run': run_number,
+            'spill': spill_number,
+            }
+        )
 
 #/////////////////////////////////////////////////////////////
 # MWPCs
@@ -346,9 +406,28 @@ if mwpc_ok:
         p.expire(mwpc_tdc_timing_histogram_keys[tdc_index], key_timeout)
     p.execute()
 
+    # tell redis that this mwpc tree is okay
+    log_messages.append(
+        {
+            'timestamp': datetime.now().strftime(datetime_format),
+            'level': 'info',
+            'message': 'Triggers are OK in MWPCs.',
+            'run': run_number,
+            'spill': spill_number,
+            }
+        )
+
 else:
     # tell redis that this mwpc tree is bad
-    pass
+    log_messages.append(
+        {
+            'timestamp': datetime.now().strftime(datetime_format),
+            'level': 'warning',
+            'message': 'No triggers in MWPCs!',
+            'run': run_number,
+            'spill': spill_number,
+            }
+        )
 
 #/////////////////////////////////////////////////////////////
 # WUT
@@ -376,9 +455,28 @@ if wut_ok:
     p.expire(wut_trigger_histogram_key, key_timeout)
     p.execute()
 
+    # tell redis that this wut tree is okay
+    log_messages.append(
+        {
+            'timestamp': datetime.now().strftime(datetime_format),
+            'level': 'info',
+            'message': 'Triggers are OK in WUT.',
+            'run': run_number,
+            'spill': spill_number,
+            }
+        )
+
 else:
     # tell redis that this wut tree is bad
-    pass
+    log_messages.append(
+        {
+            'timestamp': datetime.now().strftime(datetime_format),
+            'level': 'warning',
+            'message': 'No triggers in WUT!',
+            'run': run_number,
+            'spill': spill_number,
+            }
+        )
 
 # tell redis that we are done analyzing this file
 redis.setex(analyze_key, 0, key_timeout)
@@ -404,11 +502,11 @@ for spill_key in spill_keys:
         p.expire(run_key, key_timeout)
         p.execute()
 
-# tell redis that this is the latest run analyzed and
-# add this spill number to list of analyzed spills
+# send log messages to redis
 p = redis.pipeline()
-p.set(latest_run_key, run_number)
-p.rpush(spills_list_key, spill_number)
-p.expire(spills_list_key, key_timeout)
+for log_message_index in xrange(len(log_messages)):
+    log_message_key = log_message_key_prefix + str(log_message_index)
+    p.hmset(log_message_key, log_messages[log_message_index])
+    p.expire(log_message_key, key_timeout)
 p.execute()
 

@@ -1,9 +1,10 @@
+import numpy as np
+from redis import Redis
 from flask import (
     render_template, request, jsonify, make_response, abort, redirect, url_for,
     session
     )
-import numpy as np
-from redis import Redis
+from natsort import natsorted
 from dqm import app
 
 redis = Redis()
@@ -43,6 +44,44 @@ def physics():
     return render_template('physics.html',
                            title="Physics")
 
+@app.route('/log')
+def log():
+
+    latest_run = int(redis.get('dqm/latest-run'))
+    latest_spill = int(redis.get('dqm/latest-spill'))
+    selected_run = int(session.get('selected_run', latest_run))
+    selected_spill = session.get('selected_spill', 'All')
+
+    key_prefix = 'dqm/run:{}/spill:{}/'.format(selected_run,
+                                               selected_spill)
+
+    if selected_spill == 'All':
+        key_prefix = 'dqm/run:{}/spill:*/'.format(selected_run)
+
+    keys = redis.keys(key_prefix + 'log:*')
+    p = redis.pipeline()
+    for key in natsorted(keys):
+        p.hgetall(key)
+    posts = p.execute()
+
+    return render_template('log.html',
+                           title="Log",
+                           posts=posts)
+
+    log_html = '<!DOCTYPE html>\n' \
+               '<html lang="en">\n' \
+               '  <head>\n' \
+               '    <meta charset="utf-8">\n' \
+               '  </head>\n' \
+               '  <body>\n' \
+               '    <div>\n' \
+               '      <p><span style="font-size:18pt">log</span> <i>noun</i></p>\n'\
+               '      <p>a part of the trunk or a large branch of a tree that has fallen or been cut off.</p>\n' \
+               '    </div>\n' \
+               '  </body>\n' \
+               '</html>\n'
+    return log_html
+
 @app.route('/select-run-spill', methods=['GET', 'POST'])
 def select_run_spill():
     latest_run = int(redis.get('dqm/latest-run'))
@@ -57,6 +96,7 @@ def json():
     query = request.args.get('q', None)
 
     latest_run = int(redis.get('dqm/latest-run'))
+    latest_spill = int(redis.get('dqm/latest-spill'))
     selected_run = int(session.get('selected_run', latest_run))
     selected_spill = session.get('selected_spill', 'All')
 
@@ -104,6 +144,7 @@ def json():
         json_data = {
                 'query': query,
                 'latest_run': latest_run,
+                'latest_spill': latest_spill,
                 'selected_run': selected_run,
                 'selected_spill': selected_spill,
             }
@@ -226,6 +267,22 @@ def json():
         json_data = {
             'query': query,
             'data': data,
+            }
+        return jsonify(json_data)
+
+    elif query == 'latest-log':
+        keys = redis.keys(
+            'dqm/run:{}/spill:{}/log:*'
+            .format(latest_run, latest_spill)
+            )
+        p = redis.pipeline()
+        for key in natsorted(keys):
+            p.hgetall(key)
+        json_data = {
+            'query': query,
+            'latest_run': latest_run,
+            'latest_spill': latest_spill,
+            'messages': p.execute(),
             }
         return jsonify(json_data)
 
