@@ -3,6 +3,7 @@
 
 {% block content %}
 
+    <link href="{{ url_for('static', filename='lib/toastr/css/toastr.min.css') }}" rel="stylesheet" type="text/css" media="screen"></script>
     <style>
     .level-success {
       background-color: #51a351;
@@ -37,6 +38,9 @@
     </div>
 
 {% include 'scripts.html' %}
+
+    <script src="{{ url_for('static', filename='lib/toastr/js/toastr.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/toastr.options.js') }}"></script>
 
     <script>
     $(document).ready(function() {

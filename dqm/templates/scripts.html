@@ -2,8 +2,6 @@
     <script src="{{ url_for('static', filename='lib/bootstrap/js/bootstrap.min.js') }}"></script>
     <script src="{{ url_for('static', filename='lib/d3/js/d3.min.js') }}"></script>
     <script src="{{ url_for('static', filename='lib/d3-tip/js/d3-tip.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='lib/toastr/js/toastr.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/toastr.options.js') }}"></script>
 
     <script type=text/javascript>
       $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
