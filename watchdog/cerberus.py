@@ -56,7 +56,7 @@ def parse_dqm(file_path):
     return run, spill
 
 class DaqFileHandler(PatternMatchingEventHandler):
-    patterns = [ '*lariat_r*_sr*.root.root' ]
+    patterns = [ '*lariat_r*_sr*.root' ]
 
     def log(self, event):
         """
