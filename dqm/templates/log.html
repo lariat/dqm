@@ -51,7 +51,10 @@
         $.getJSON($SCRIPT_ROOT + '/json?q=latest-log', function(data) {
           if (latest_spill != data.latest_spill) {
             for (var i = 0; i < data.messages.length; ++i) {
-              $('#log-messages').append('<div class="' + data.messages[i].level + '"><p>[' + data.messages[i].timestamp + '] [Run ' + data.messages[i].run + '] [Spill ' + data.messages[i].spill + '] ' + data.messages[i].message + '</p>');
+              $('#log-messages').append('<div class="level-' + data.messages[i].level + '"><p>[' + data.messages[i].timestamp + '] [Run ' + data.messages[i].run + '] [Spill ' + data.messages[i].spill + '] ' + data.messages[i].message + '</p>');
+              if (data.messages[i].level != "info") {
+                toastr[data.messages[i].level](data.messages[i].message, 'Run ' + data.messages[i].run + ', Spill ' + data.messages[i].spill + '')
+              }
             }
             latest_spill = data.latest_spill;
           }
