@@ -15,7 +15,7 @@ log_dir = '/lariat/data/users/lariatdqm/log/watchdog'
 log_file_path = log_dir + '/proc.log'
 dqm_root = '/home/nfs/lariatdqm/local/dqm'
 daq_file_dir = '/daqdata/dropbox'
-dqm_file_dir = '/daqdata/dqm'
+dqm_file_dir = '/lariat/data/users/lariatdqm/dqm'
 
 file_name = 'tmp_multiple_rotating.log'
 format = '%(asctime)s %(name)-12s %(levelname)-8s %(message)s'
