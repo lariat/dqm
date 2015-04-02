@@ -87,7 +87,10 @@ class DaqFileHandler(PatternMatchingEventHandler):
         else:
             input_file_path = event.src_path
 
-        print 'Processing DAQ file: {}'.format(input_file_path)
+        time_stamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        print '{} - Processing DAQ file: {}'.format(time_stamp,
+                                                    input_file_path)
 
         run, spill = parse_daq(input_file_path)
 
@@ -159,7 +162,10 @@ class DqmFileHandler(PatternMatchingEventHandler):
         else:
             input_file_path = event.src_path
 
-        print 'Processing DQM file: {}'.format(input_file_path)
+        time_stamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        print '{} - Processing DQM file: {}'.format(time_stamp,
+                                                    input_file_path)
 
         cmd = [
             'python',
