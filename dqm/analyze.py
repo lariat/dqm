@@ -242,7 +242,7 @@ if v1740_ok:
         {
             'timestamp': datetime.now().strftime(datetime_format),
             'level': 'info',
-            'message': 'Triggers are OK in CAEN V1740 boards.',
+            'message': 'Data stream is OK from CAEN V1740 boards.',
             'run': run_number,
             'spill': spill_number,
             }
@@ -254,7 +254,7 @@ else:
         {
             'timestamp': datetime.now().strftime(datetime_format),
             'level': 'warning',
-            'message': 'No triggers in any CAEN V1740 boards!',
+            'message': 'No data stream from any CAEN V1740 boards!',
             'run': run_number,
             'spill': spill_number,
             }
@@ -342,7 +342,7 @@ if v1751_ok:
         {
             'timestamp': datetime.now().strftime(datetime_format),
             'level': 'info',
-            'message': 'Triggers are OK in CAEN V1751 boards.',
+            'message': 'Data stream is OK from CAEN V1751 boards.',
             'run': run_number,
             'spill': spill_number,
             }
@@ -354,7 +354,7 @@ else:
         {
             'timestamp': datetime.now().strftime(datetime_format),
             'level': 'warning',
-            'message': 'No triggers in any CAEN V1751 boards!',
+            'message': 'No data stream from any CAEN V1751 boards!',
             'run': run_number,
             'spill': spill_number,
             }
@@ -411,7 +411,7 @@ if mwpc_ok:
         {
             'timestamp': datetime.now().strftime(datetime_format),
             'level': 'info',
-            'message': 'Triggers are OK in MWPCs.',
+            'message': 'Data stream is OK from MWPCs.',
             'run': run_number,
             'spill': spill_number,
             }
@@ -423,7 +423,7 @@ else:
         {
             'timestamp': datetime.now().strftime(datetime_format),
             'level': 'warning',
-            'message': 'No triggers in MWPCs!',
+            'message': 'No data stream from MWPCs!',
             'run': run_number,
             'spill': spill_number,
             }
@@ -460,7 +460,7 @@ if wut_ok:
         {
             'timestamp': datetime.now().strftime(datetime_format),
             'level': 'info',
-            'message': 'Triggers are OK in WUT.',
+            'message': 'Data stream is OK from WUT.',
             'run': run_number,
             'spill': spill_number,
             }
@@ -472,7 +472,7 @@ else:
         {
             'timestamp': datetime.now().strftime(datetime_format),
             'level': 'warning',
-            'message': 'No triggers in WUT!',
+            'message': 'No data stream from WUT!',
             'run': run_number,
             'spill': spill_number,
             }
