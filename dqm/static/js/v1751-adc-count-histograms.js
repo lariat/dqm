@@ -256,68 +256,68 @@
   );
 
   // board 1
-  //var v1751_board_1_channel_0_adc_count_histogram = chart(
-  //  {
-  //    selection: "#v1751-board-1-channel-0-adc-count-histogram",
-  //    title: "CH 0",
-  //    json_url: json_url + "&board_id=1&channel=0"
-  //  }
-  //);
+  var v1751_board_1_channel_0_adc_count_histogram = chart(
+    {
+      selection: "#v1751-board-1-channel-0-adc-count-histogram",
+      title: "CH 0",
+      json_url: json_url + "&board_id=1&channel=0"
+    }
+  );
 
-  //var v1751_board_1_channel_1_adc_count_histogram = chart(
-  //  {
-  //    selection: "#v1751-board-1-channel-1-adc-count-histogram",
-  //    title: "CH 1",
-  //    json_url: json_url + "&board_id=1&channel=1"
-  //  }
-  //);
+  var v1751_board_1_channel_1_adc_count_histogram = chart(
+    {
+      selection: "#v1751-board-1-channel-1-adc-count-histogram",
+      title: "CH 1",
+      json_url: json_url + "&board_id=1&channel=1"
+    }
+  );
 
-  //var v1751_board_1_channel_2_adc_count_histogram = chart(
-  //  {
-  //    selection: "#v1751-board-1-channel-2-adc-count-histogram",
-  //    title: "CH 2",
-  //    json_url: json_url + "&board_id=1&channel=2"
-  //  }
-  //);
+  var v1751_board_1_channel_2_adc_count_histogram = chart(
+    {
+      selection: "#v1751-board-1-channel-2-adc-count-histogram",
+      title: "CH 2",
+      json_url: json_url + "&board_id=1&channel=2"
+    }
+  );
 
-  //var v1751_board_1_channel_3_adc_count_histogram = chart(
-  //  {
-  //    selection: "#v1751-board-1-channel-3-adc-count-histogram",
-  //    title: "CH 3",
-  //    json_url: json_url + "&board_id=1&channel=3"
-  //  }
-  //);
+  var v1751_board_1_channel_3_adc_count_histogram = chart(
+    {
+      selection: "#v1751-board-1-channel-3-adc-count-histogram",
+      title: "CH 3",
+      json_url: json_url + "&board_id=1&channel=3"
+    }
+  );
 
-  //var v1751_board_1_channel_4_adc_count_histogram = chart(
-  //  {
-  //    selection: "#v1751-board-1-channel-4-adc-count-histogram",
-  //    title: "CH 4",
-  //    json_url: json_url + "&board_id=1&channel=4"
-  //  }
-  //);
+  var v1751_board_1_channel_4_adc_count_histogram = chart(
+    {
+      selection: "#v1751-board-1-channel-4-adc-count-histogram",
+      title: "CH 4",
+      json_url: json_url + "&board_id=1&channel=4"
+    }
+  );
 
-  //var v1751_board_1_channel_5_adc_count_histogram = chart(
-  //  {
-  //    selection: "#v1751-board-1-channel-5-adc-count-histogram",
-  //    title: "CH 5",
-  //    json_url: json_url + "&board_id=1&channel=5"
-  //  }
-  //);
+  var v1751_board_1_channel_5_adc_count_histogram = chart(
+    {
+      selection: "#v1751-board-1-channel-5-adc-count-histogram",
+      title: "CH 5",
+      json_url: json_url + "&board_id=1&channel=5"
+    }
+  );
 
-  //var v1751_board_1_channel_6_adc_count_histogram = chart(
-  //  {
-  //    selection: "#v1751-board-1-channel-6-adc-count-histogram",
-  //    title: "CH 6",
-  //    json_url: json_url + "&board_id=1&channel=6"
-  //  }
-  //);
+  var v1751_board_1_channel_6_adc_count_histogram = chart(
+    {
+      selection: "#v1751-board-1-channel-6-adc-count-histogram",
+      title: "CH 6",
+      json_url: json_url + "&board_id=1&channel=6"
+    }
+  );
 
-  //var v1751_board_1_channel_7_adc_count_histogram = chart(
-  //  {
-  //    selection: "#v1751-board-1-channel-7-adc-count-histogram",
-  //    title: "CH 7",
-  //    json_url: json_url + "&board_id=1&channel=7"
-  //  }
-  //);
+  var v1751_board_1_channel_7_adc_count_histogram = chart(
+    {
+      selection: "#v1751-board-1-channel-7-adc-count-histogram",
+      title: "CH 7",
+      json_url: json_url + "&board_id=1&channel=7"
+    }
+  );
 
 }) ();
