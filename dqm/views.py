@@ -288,6 +288,10 @@ def json():
 
 # testing area below
 
+@app.route('/tabs')
+def tabs():
+    return render_template('tabs.html')
+
 @app.route('/session')
 def session_():
     return render_template('session.html',
