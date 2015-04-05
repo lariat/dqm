@@ -117,10 +117,8 @@ def json():
         for key in keys:
             run_number = int(key.split('/')[1].split(':')[1])
             runs_list.append(run_number)
+        runs_list.remove(latest_run)
         runs_list.sort(reverse=True)
-        if runs_list.pop(0) != latest_run:
-            return jsonify(json_data)
-        #selected_run = session.get('selected_run', latest_run)
         json_data = {
                 'query': query,
                 'selected': selected_run,
