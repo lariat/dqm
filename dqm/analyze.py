@@ -36,7 +36,49 @@ import tofutils
 def get_spill_info(file_path):
     """
     Returns the following spill information from the
-    spillTrailer fragment:
+    artEventRecord tree
+
+        - run_number
+        - sub_run_number
+        - time_stamp_low (Unix time from wall clock)
+
+    Returns (run_number, spill_number, time_stamp)
+
+    """
+
+    try:
+        spill_trailer = rnp.root2array(
+            file_path,
+            'DataQuality/artEventRecord',
+            branches=['run_number', 'sub_run_number', 'time_stamp_low']
+            )
+
+        run_number = np.unique(spill_trailer['run_number'])
+        spill_number = np.unique(spill_trailer['sub_run_number'])
+        time_stamp = np.unique(spill_trailer['time_stamp_low'])
+
+        if run_number.size != 1:
+            print "Multiple run numbers detected!"
+            print run_number
+
+        if spill_number.size != 1:
+            print "Multiple spill numbers detected!"
+            print spill_number
+
+        if time_stamp.size != 1:
+            print "Multiple time stamps detected!"
+            print time_stamp
+
+        return run_number[0], spill_number[0], time_stamp[0]
+
+    except:
+        print "Cannot get artEventRecord information!"
+        return 0, 0, 0
+
+def get_spill_trailer(file_path):
+    """
+    Returns the following spill information from the
+    SpillTrailer fragment:
 
         - runNumber
         - spillNumber
@@ -48,7 +90,8 @@ def get_spill_info(file_path):
 
     try:
         spill_trailer = rnp.root2array(
-            file_path, 'DataQuality/spillTrailer',
+            file_path,
+            'DataQuality/spillTrailer',
             branches=['runNumber', 'spillNumber', 'timeStamp']
             )
 
