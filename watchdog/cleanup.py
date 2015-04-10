@@ -6,7 +6,7 @@ import time
 
 def remove(path):
     """
-    Remove the file
+    Remove the file.
     """
     try:
         if os.path.exists(path):
@@ -20,18 +20,16 @@ def remove(path):
 def cleanup(days, path):
     """
     Removes files from the passed-in path that are older than
-    or equal to the number of days
+    or equal to the number of days.
     """
-    time_in_secs = time.time() - (days * 24 * 60 * 60)
+    time_in_seconds = time.time() - (days * 24 * 60 * 60)
     for root, dirs, files in os.walk(path, topdown=False):
         for file_ in files:
             full_path = os.path.join(root, file_)
             stat = os.stat(full_path)
 
-            if stat.st_mtime <= time_in_secs:
+            if stat.st_mtime <= time_in_seconds:
                 remove(full_path)
-
-        print os.listdir(root)
 
 if __name__ == '__main__':
     #days, path = int(sys.argv[1]), sys.argv[2]
