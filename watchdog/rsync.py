@@ -15,8 +15,8 @@ import daemon
 
 log_dir = '/lariat/data/users/lariatdqm/log/watchdog'
 log_file_path = log_dir + '/rsync.log'
-src_file_dir = '/daqdata/dqm'
-dest_file_dir = '/lariat/data/users/lariatdqm/daqdata'
+src_file_dir = '/daqdata/dropbox'
+dest_file_dir = 'lariat-daq01:/lariat/data/users/lariatdqm/daqdata'
 
 format = '%(asctime)s %(name)-12s %(levelname)-8s %(message)s'
 date_format = '%Y-%m-%d %H:%M:%S'
@@ -82,8 +82,11 @@ class FileHandler(PatternMatchingEventHandler):
 
         time_stamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-        print '{} - Copying DAQ file: {}'.format(time_stamp,
-                                                 src_file_path)
+        log_message = '{} - Copying DAQ file: {}'.format(
+            time_stamp, src_file_path
+            )
+        sys.stdout.write(log_message + '\n')
+        sys.stdout.flush()
 
         dest_file_path = dest_file_dir + '/' + file_name
 
@@ -93,10 +96,8 @@ class FileHandler(PatternMatchingEventHandler):
             '--no-compress',
             '--progress',
             src_file_path,
-            'lariat-daq01:' + dest_file_path,
+            dest_file_path,
             ]
-
-        print cmd
 
         proc = subprocess.Popen(
             cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
