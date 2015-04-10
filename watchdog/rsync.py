@@ -11,9 +11,11 @@ from logging.handlers import RotatingFileHandler
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 
+import daemon
+
 log_dir = '/lariat/data/users/lariatdqm/log/watchdog'
 log_file_path = log_dir + '/rsync.log'
-src_file_dir = '/daqdata/dropbox'
+src_file_dir = '/daqdata/dqm'
 dest_file_dir = '/lariat/data/users/lariatdqm/daqdata'
 
 format = '%(asctime)s %(name)-12s %(levelname)-8s %(message)s'
@@ -108,7 +110,7 @@ class FileHandler(PatternMatchingEventHandler):
 
     def on_created(self, event):
         self.log(event)
-        #self.process(event)
+        self.process(event)
 
     def on_modified(self, event):
         self.log(event)
@@ -120,7 +122,7 @@ class FileHandler(PatternMatchingEventHandler):
         self.log(event)
         self.process(event)
 
-if __name__ == '__main__':
+def run():
 
     observer = Observer()
     observer.schedule(FileHandler(), path=src_file_dir)
@@ -133,4 +135,9 @@ if __name__ == '__main__':
         observer.stop()
 
     observer.join()
+
+if __name__ == '__main__':
+
+    with daemon.DaemonContext():
+        run()
 
