@@ -11,11 +11,16 @@ from logging.handlers import RotatingFileHandler
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 
+from cleanup import cleanup
+
 log_dir = '/lariat/data/users/lariatdqm/log/watchdog'
 log_file_path = log_dir + '/proc.log'
 dqm_root = '/home/nfs/lariatdqm/local/dqm'
-daq_file_dir = '/daqdata/dropbox'
+daq_file_dir = '/lariat/data/users/lariatdqm/daqdata'
 dqm_file_dir = '/lariat/data/users/lariatdqm/dqm'
+# number of days a file can exist in daq_file_dir before it is
+# deleted by the cleanup process
+days = 1
 
 format = '%(asctime)s %(name)-12s %(levelname)-8s %(message)s'
 date_format = '%Y-%m-%d %H:%M:%S'
@@ -55,7 +60,7 @@ def parse_dqm(file_path):
     return run, spill
 
 class DaqFileHandler(PatternMatchingEventHandler):
-    patterns = [ '*lariat_r*_sr*.root' ]
+    patterns = [ daq_file_dir + '/lariat_r*_sr*.root' ]
 
     def log(self, event):
         """
@@ -103,6 +108,8 @@ class DaqFileHandler(PatternMatchingEventHandler):
             input_file_path,
             '-T',
             output_file_path,
+            '&&',
+            cleanup(days, daq_file_dir),
             ]
 
         proc = subprocess.Popen(
@@ -117,7 +124,7 @@ class DaqFileHandler(PatternMatchingEventHandler):
 
     def on_created(self, event):
         self.log(event)
-        self.process(event)
+        #self.process(event)
 
     def on_modified(self, event):
         self.log(event)
@@ -130,7 +137,7 @@ class DaqFileHandler(PatternMatchingEventHandler):
         self.process(event)
 
 class DqmFileHandler(PatternMatchingEventHandler):
-    patterns = [ '*dqm_run_*_spill_*.root' ]
+    patterns = [ dqm_file_dir + '/dqm_run_*_spill_*.root' ]
 
     def log(self, event):
         """
@@ -184,7 +191,7 @@ class DqmFileHandler(PatternMatchingEventHandler):
 
     def on_created(self, event):
         self.log(event)
-        self.process(event)
+        #self.process(event)
 
     def on_modified(self, event):
         self.log(event)
