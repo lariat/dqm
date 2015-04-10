@@ -60,7 +60,10 @@ def parse_dqm(file_path):
     return run, spill
 
 class DaqFileHandler(PatternMatchingEventHandler):
-    patterns = [ daq_file_dir + '/lariat_r*_sr*.root' ]
+    patterns = [
+        daq_file_dir + '/.lariat_r*_sr*.root.*',
+        daq_file_dir + '/lariat_r*_sr*.root',
+        ]
 
     def log(self, event):
         """
@@ -108,8 +111,6 @@ class DaqFileHandler(PatternMatchingEventHandler):
             input_file_path,
             '-T',
             output_file_path,
-            '&&',
-            cleanup(days, daq_file_dir),
             ]
 
         proc = subprocess.Popen(
@@ -121,6 +122,8 @@ class DaqFileHandler(PatternMatchingEventHandler):
             if not line:
                 break
             logger_daq.info(line.rstrip('\n'))
+
+        cleanup(days, daq_file_dir)
 
     def on_created(self, event):
         self.log(event)

@@ -16,7 +16,7 @@ import daemon
 log_dir = '/lariat/data/users/lariatdqm/log/watchdog'
 log_file_path = log_dir + '/rsync.log'
 src_file_dir = '/daqdata/dropbox'
-dest_file_dir = 'lariat-daq01:/lariat/data/users/lariatdqm/daqdata'
+dest_file_dir = 'lariatdqm@lariat-daq01.fnal.gov:/lariat/data/users/lariatdqm/daqdata'
 
 format = '%(asctime)s %(name)-12s %(levelname)-8s %(message)s'
 date_format = '%Y-%m-%d %H:%M:%S'
@@ -94,7 +94,7 @@ class FileHandler(PatternMatchingEventHandler):
             'rsync',
             '-avhW',
             '--no-compress',
-            '--progress',
+            #'--progress',
             src_file_path,
             dest_file_path,
             ]
