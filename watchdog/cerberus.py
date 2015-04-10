@@ -17,7 +17,6 @@ dqm_root = '/home/nfs/lariatdqm/local/dqm'
 daq_file_dir = '/daqdata/dropbox'
 dqm_file_dir = '/lariat/data/users/lariatdqm/dqm'
 
-file_name = 'tmp_multiple_rotating.log'
 format = '%(asctime)s %(name)-12s %(levelname)-8s %(message)s'
 date_format = '%Y-%m-%d %H:%M:%S'
 
@@ -101,7 +100,7 @@ class DaqFileHandler(PatternMatchingEventHandler):
             'lar',
             '-c',
             'data_quality.fcl',
-            event.src_path,
+            input_file_path,
             '-T',
             output_file_path,
             ]
