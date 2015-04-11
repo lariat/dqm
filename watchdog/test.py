@@ -3,7 +3,8 @@
 import sys
 import time
 from datetime import datetime
-from watchdog.observers import Observer
+#from watchdog.observers import Observer
+from watchdog.observers.polling import PollingObserver as Observer
 from watchdog.events import PatternMatchingEventHandler
 
 class RootFileHandler(PatternMatchingEventHandler):
