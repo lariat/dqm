@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>DQM &mdash; Scratch</title>
+    <title>DQM &mdash; Stacked Bar Chart</title>
 
     <style>
       body {
@@ -136,6 +136,11 @@
 
   <div class="stacked-chart-container js-stacked-chart-container">
     <svg class="stacked-chart js-stacked-chart"></svg>
+    <div class="tooltip">
+      <div class="tooltip-wrapper">
+        <h3 class="tooltip-header"></h3>
+      </div>
+    </div>
   </div>
 
   <script src="/static/lib/jquery/js/jquery.min.js"></script>
@@ -213,6 +218,12 @@
 
     var stackedBarHeight = function (d) { return yScale(d.y0) - yScale(d.y0 + d.y); };
 
+    var addTooltip = function (selection) {
+        selection
+            .on("mouseover", showTooltip)
+            .on("mouseout", hideTooltip);
+    };
+
     var animateStackedBars = function (selection) {
         selection.transition()
             .duration(animationDuration)
@@ -259,6 +270,7 @@
             .attr("y", height)
             .attr("width", stackedBarWidth)
             .attr("height", 0)
+            .call(addTooltip)
             .call(animateStackedBars);
 
     //console.log(data);
@@ -269,6 +281,24 @@
     //console.log(mainContainer);
     //console.log(layers);
     //console.log(layers.selectAll("rect"));
+
+    function showTooltip() {
+        var bar,
+            tooltip;
+
+        bar = d3.select(this),
+        tooltip = $(".tooltip");
+
+        tooltip.find("h3").text(bar.datum().y);
+        tooltip.css({
+            top:  margin.top  + parseFloat(bar.attr("y")) - tooltip.outerHeight() - tooltipBottomMargin,
+            left: margin.left + parseFloat(bar.attr("x")) + (bar.attr("width") / 2) - (tooltip.outerWidth() / 2),
+        }).fadeIn();
+    }
+
+    function hideTooltip () {
+        $(".tooltip").stop().hide();
+    }
 
     function update() {
 
