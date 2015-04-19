@@ -44,6 +44,11 @@ def physics():
     return render_template('physics.html',
                            title="Physics")
 
+@app.route('/mwpc-histograms')
+def mwpc_histograms():
+    return render_template('mwpc-histograms.html',
+                           title="Multi-Wire Proportional Chambers")
+
 @app.route('/log')
 def log():
 
@@ -252,6 +257,59 @@ def json():
             }
         return jsonify(json_data)
 
+    elif query == 'mwpc-histogram':
+        tdc = request.args.get('tdc', -1)
+        type_ = request.args.get('type', None)
+        if int(tdc) not in range(1, 17) or type_ not in ('channel', 'timing'):
+            return jsonify(json_data)
+        bin_start_stop = {
+            'channel': (0, 64),
+            'timing': (200, 520),
+            }
+        good_hit_keys = redis.keys(
+            key_prefix +
+            'mwpc/tdc-{}-good-hit-{}-histogram'.format(tdc, type_)
+            )
+        bad_hit_keys = redis.keys(
+            key_prefix +
+            'mwpc/tdc-{}-bad-hit-{}-histogram'.format(tdc, type_)
+            )
+        bin_start = bin_start_stop[type_][0]
+        bin_stop = bin_start_stop[type_][1]
+        bins = np.arange(bin_start, bin_stop, 1)
+        good_hit_pipeline = redis.pipeline()
+        bad_hit_pipeline = redis.pipeline()
+        for key in good_hit_keys:
+            good_hit_pipeline.lrange(key, 0, -1)
+        for key in bad_hit_keys:
+            bad_hit_pipeline.lrange(key, 0, -1)
+        good_hit_counts = np.sum(
+            np.array(good_hit_pipeline.execute(), dtype=np.int64), axis=0
+            )
+        bad_hit_counts = np.sum(
+            np.array(bad_hit_pipeline.execute(), dtype=np.int64), axis=0
+            )
+        if (type(good_hit_counts) != np.ndarray and
+            type(bad_hit_counts) != np.ndarray):
+            return jsonify(json_data)
+        data = [
+            { 'bin': i, 'good_hit_count': j, 'bad_hit_count': k }
+                for i, j, k in zip(
+                    bins,
+                    good_hit_counts[bin_start:bin_stop],
+                    bad_hit_counts[bin_start:bin_stop]
+                    )
+            ]
+        json_data = {
+            'query': query,
+            'type': type_,
+            'tdc': tdc,
+            'bin_start': bin_start,
+            'bin_stop': bin_stop,
+            'data': data,
+            }
+        return jsonify(json_data)
+
     elif query == 'v1751-tof-histogram':
         keys = redis.keys(key_prefix + 'v1751/tof-histogram')
         p = redis.pipeline()
@@ -270,8 +328,7 @@ def json():
 
     elif query == 'latest-log':
         keys = redis.keys(
-            'dqm/run:{}/spill:{}/log:*'
-            .format(latest_run, latest_spill)
+            'dqm/run:{}/spill:{}/log:*'.format(latest_run, latest_spill)
             )
         p = redis.pipeline()
         for key in natsorted(keys):

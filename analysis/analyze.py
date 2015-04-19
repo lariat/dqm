@@ -32,6 +32,7 @@ if cmd_subdir not in sys.path:
 
 import rawdatautils
 import tofutils
+from trackutils import mwpc
 
 def get_spill_info(file_path):
     """
@@ -188,7 +189,10 @@ except:
 run_number, spill_number, time_stamp = get_spill_info(file_path)
 
 # set redis key timeout to 2 weeks for now
-key_timeout = 604800  # each count is 1 second
+#key_timeout = 604800  # each count is 1 second
+
+# set redis key timeout to 4 weeks
+key_timeout = 2419200  # each count is 1 second
 
 # set redis key prefix
 run_key_prefix = 'dqm/run:{}//'.format(run_number)
@@ -415,10 +419,34 @@ if mwpc_ok:
         spill_key_prefix + 'mwpc/tdc-{}-timing-histogram'.format(tdc_index+1)
         for tdc_index in xrange(0, 16)
         ]
+    mwpc_tdc_good_hit_channel_histogram_keys = [
+        spill_key_prefix + 'mwpc/tdc-{}-good-hit-channel-histogram'
+        .format(tdc_index+1)
+        for tdc_index in xrange(0, 16)
+        ]
+    mwpc_tdc_good_hit_timing_histogram_keys = [
+        spill_key_prefix + 'mwpc/tdc-{}-good-hit-timing-histogram'
+        .format(tdc_index+1)
+        for tdc_index in xrange(0, 16)
+        ]
+    mwpc_tdc_bad_hit_channel_histogram_keys = [
+        spill_key_prefix + 'mwpc/tdc-{}-bad-hit-channel-histogram'
+        .format(tdc_index+1)
+        for tdc_index in xrange(0, 16)
+        ]
+    mwpc_tdc_bad_hit_timing_histogram_keys = [
+        spill_key_prefix + 'mwpc/tdc-{}-bad-hit-timing-histogram'
+        .format(tdc_index+1)
+        for tdc_index in xrange(0, 16)
+        ]
 
     # if keys already exist in redis, delete the existing keys
     redis.delete(mwpc_trigger_histogram_key)
     redis.delete(*mwpc_tdc_timing_histogram_keys)
+    redis.delete(*mwpc_tdc_good_hit_timing_histogram_keys)
+    redis.delete(*mwpc_tdc_good_hit_channel_histogram_keys)
+    redis.delete(*mwpc_tdc_bad_hit_timing_histogram_keys)
+    redis.delete(*mwpc_tdc_bad_hit_channel_histogram_keys)
 
     # get array of MWPC TDC time stamp
     # each TDC time stamp count is 1/106.208e6 seconds
@@ -434,8 +462,33 @@ if mwpc_ok:
     hit_time_array = rawdatautils.get_mwpc_tdc_hit_time(file_path)
 
     # get histograms of relative TDC hit timing for each TDC
-    mwpc_tdc_hit_time_histograms = [
-        np.histogram(hit_time_array[tdc_index], bins=320, range=(200, 520))[0]
+    mwpc_tdc_hit_timing_histograms = [
+        np.histogram(hit_time_array[tdc_index], bins=1024, range=(0, 1024))[0]
+        for tdc_index in xrange(0, 16)
+        ]
+
+    # get arrays of good hits and bad hits
+    good_hit_array, bad_hit_array = mwpc.cluster.get_hits(file_path)
+
+    # get channel and timing histograms of good and bad hits
+    mwpc_tdc_good_hit_channel_histograms = [
+        np.histogram(good_hit_array[tdc_index][:, 0],
+                     bins=64, range=(0, 64))[0]
+        for tdc_index in xrange(0, 16)
+        ]
+    mwpc_tdc_good_hit_timing_histograms = [
+        np.histogram(good_hit_array[tdc_index][:, 1],
+                     bins=1024, range=(0, 1024))[0]
+        for tdc_index in xrange(0, 16)
+        ]
+    mwpc_tdc_bad_hit_channel_histograms = [
+        np.histogram(bad_hit_array[tdc_index][:, 0],
+                     bins=64, range=(0, 64))[0]
+        for tdc_index in xrange(0, 16)
+        ]
+    mwpc_tdc_bad_hit_timing_histograms = [
+        np.histogram(bad_hit_array[tdc_index][:, 1],
+                     bins=1024, range=(0, 1024))[0]
         for tdc_index in xrange(0, 16)
         ]
 
@@ -445,8 +498,28 @@ if mwpc_ok:
     p.expire(mwpc_trigger_histogram_key, key_timeout)
     for tdc_index in xrange(0, 16):
         p.rpush(mwpc_tdc_timing_histogram_keys[tdc_index],
-                *mwpc_tdc_hit_time_histograms[tdc_index])
+                *mwpc_tdc_hit_timing_histograms[tdc_index])
         p.expire(mwpc_tdc_timing_histogram_keys[tdc_index], key_timeout)
+
+        # add channel and timing histograms of good and bad hits
+        p.rpush(mwpc_tdc_good_hit_channel_histogram_keys[tdc_index],
+                *mwpc_tdc_good_hit_channel_histograms[tdc_index])
+        p.rpush(mwpc_tdc_good_hit_timing_histogram_keys[tdc_index],
+                *mwpc_tdc_good_hit_timing_histograms[tdc_index])
+        p.rpush(mwpc_tdc_bad_hit_channel_histogram_keys[tdc_index],
+                *mwpc_tdc_bad_hit_channel_histograms[tdc_index])
+        p.rpush(mwpc_tdc_bad_hit_timing_histogram_keys[tdc_index],
+                *mwpc_tdc_bad_hit_timing_histograms[tdc_index])
+
+        # set timeout of channel and timing histograms of good and bad hits
+        p.expire(mwpc_tdc_good_hit_channel_histogram_keys[tdc_index],
+                 key_timeout)
+        p.expire(mwpc_tdc_good_hit_timing_histogram_keys[tdc_index],
+                 key_timeout)
+        p.expire(mwpc_tdc_bad_hit_channel_histogram_keys[tdc_index],
+                 key_timeout)
+        p.expire(mwpc_tdc_bad_hit_timing_histogram_keys[tdc_index],
+                 key_timeout)
     p.execute()
 
     # tell redis that this mwpc tree is okay
