@@ -38,9 +38,9 @@ body {
 }
 
 .d3-tip {
-  line-height: 1;
-  font-weight: bold;
-  padding: 12px;
+  line-height: 1.2;
+  font-weight: normal;
+  padding: 11px;
   background: rgba(0, 0, 0, 0.8);
   color: #fff;
   border-radius: 2px;

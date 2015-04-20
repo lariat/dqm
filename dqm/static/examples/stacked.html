@@ -158,6 +158,15 @@
         }),
         stack = d3.layout.stack().values(function (d) { return d.values; });
 
+    console.log(
+        seriesNames.map(function (name) {
+            return {
+                name: name,
+                values: bumpLayer(numSamples, 0.1)
+            };
+        })
+    )
+
     stack(data);
 
     var chartMode = "stacked",
@@ -318,7 +327,7 @@
       // update y-axis
       /////////////////////////////////////////////////////////////////////////
 
-      maxStackY = d3.max(newData, function (series) { return d3.max(series.values, function (d) { return d.y0 + d.y; }); })
+      maxStackY = d3.max(newData, function (series) { return d3.max(series.values, function (d) { return d.y0 + d.y; }); });
 
       yScale.domain([0, maxStackY]);
 

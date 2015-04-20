@@ -29,6 +29,16 @@ def mwpc():
     return render_template('mwpc.html',
                            title="Multi-Wire Proportional Chambers")
 
+@app.route('/mwpc-channel')
+def mwpc_channel():
+    return render_template('mwpc-channel.html',
+                           title="Multi-Wire Proportional Chambers: Channel Occupancy")
+
+@app.route('/mwpc-timing')
+def mwpc_timing():
+    return render_template('mwpc-timing.html',
+                           title="Multi-Wire Proportional Chambers: Timing")
+
 @app.route('/wut')
 def wut():
     return render_template('wut.html',
@@ -237,20 +247,25 @@ def json():
 
     elif query == 'mwpc-timing-histogram':
         tdc = request.args.get('tdc', -1)
+
         if int(tdc) not in range(1, 17):
             return jsonify(json_data)
+
         keys = redis.keys(key_prefix +
                           'mwpc/tdc-{}-timing-histogram'.format(tdc))
         p = redis.pipeline()
         for key in keys:
             p.lrange(key, 0, -1)
-        bins = np.arange(200, 520, 1)
         counts = np.sum(np.array(p.execute(), dtype=np.int64), axis=0)
         if type(counts) != np.ndarray:
             return jsonify(json_data)
+
+        bins = np.arange(200, 520, 1)
+
         data = [
             { 'bin': i, 'count': j } for i, j in zip(bins, counts)
             ]
+
         json_data = {
             'query': query,
             'data': data,
@@ -260,54 +275,76 @@ def json():
     elif query == 'mwpc-histogram':
         tdc = request.args.get('tdc', -1)
         type_ = request.args.get('type', None)
+        start = request.args.get('start', None)
+        stop = request.args.get('stop', None)
+
         if int(tdc) not in range(1, 17) or type_ not in ('channel', 'timing'):
             return jsonify(json_data)
-        bin_start_stop = {
+
+        names = ('good', 'bad')
+        bin_range = {
             'channel': (0, 64),
-            'timing': (200, 520),
+            'timing': (0, 1024),
             }
-        good_hit_keys = redis.keys(
-            key_prefix +
-            'mwpc/tdc-{}-good-hit-{}-histogram'.format(tdc, type_)
-            )
-        bad_hit_keys = redis.keys(
-            key_prefix +
-            'mwpc/tdc-{}-bad-hit-{}-histogram'.format(tdc, type_)
-            )
-        bin_start = bin_start_stop[type_][0]
-        bin_stop = bin_start_stop[type_][1]
-        bins = np.arange(bin_start, bin_stop, 1)
-        good_hit_pipeline = redis.pipeline()
-        bad_hit_pipeline = redis.pipeline()
-        for key in good_hit_keys:
-            good_hit_pipeline.lrange(key, 0, -1)
-        for key in bad_hit_keys:
-            bad_hit_pipeline.lrange(key, 0, -1)
-        good_hit_counts = np.sum(
-            np.array(good_hit_pipeline.execute(), dtype=np.int64), axis=0
-            )
-        bad_hit_counts = np.sum(
-            np.array(bad_hit_pipeline.execute(), dtype=np.int64), axis=0
-            )
-        if (type(good_hit_counts) != np.ndarray and
-            type(bad_hit_counts) != np.ndarray):
-            return jsonify(json_data)
+        bin_range_ok = False
+
+        if start and stop:
+            start = int(start)
+            stop = int(stop)
+            if (start < stop and            
+                bin_range[type_][0] <= start <= bin_range[type_][1] and
+                bin_range[type_][0] <= stop <= bin_range[type_][1]):
+                bin_range_ok = True
+
+        if not bin_range_ok:
+            bin_start_stop = {
+                'channel': (0, 64),
+                'timing': (200, 520),
+                }
+            start = bin_start_stop[type_][0]
+            stop = bin_start_stop[type_][1]
+
+        bins = np.arange(start, stop, 1)
+        counts_dict = {}
+
+        for name in names:
+            keys = redis.keys(
+                key_prefix +
+                'mwpc/tdc-{}-{}-hit-{}-histogram'.format(tdc, name, type_)
+                )
+            p = redis.pipeline()
+            for key in keys:
+                p.lrange(key, 0, -1)
+            counts = np.sum(
+                np.array(p.execute(), dtype=np.int64), axis=0
+                )
+            if type(counts) != np.ndarray:
+                return jsonify(json_data)
+            counts_dict[name] = counts
+
         data = [
-            { 'bin': i, 'good_hit_count': j, 'bad_hit_count': k }
-                for i, j, k in zip(
-                    bins,
-                    good_hit_counts[bin_start:bin_stop],
-                    bad_hit_counts[bin_start:bin_stop]
-                    )
+            {
+                'name': name,
+                'values': [
+                    { 'x': x, 'y': y }
+                    for x, y in zip(
+                        bins,
+                        counts_dict[name][start:stop]
+                        )
+                    ]
+                }
+            for name in names
             ]
+
         json_data = {
             'query': query,
             'type': type_,
             'tdc': tdc,
-            'bin_start': bin_start,
-            'bin_stop': bin_stop,
+            'start': start,
+            'stop': stop,
             'data': data,
             }
+
         return jsonify(json_data)
 
     elif query == 'v1751-tof-histogram':

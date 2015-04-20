@@ -2,7 +2,7 @@
     ('/', 'index', 'Home'),
     ('/v1740', 'v1740', 'V1740 Boards'),
     ('/v1751', 'v1751', 'V1751 Boards'),
-    ('/mwpc', 'mwpc', 'Wire Chambers'),
+    ('/mwpc-channel', 'mwpc', 'Wire Chambers'),
     ('/wut', 'wut', 'Wave Union TDC'),
     ('/triggers', 'triggers', 'Triggers'),
     ('/physics', 'physics', 'Physics'),
@@ -18,11 +18,12 @@
     {% if title %}
     <title>DQM &mdash; {{ title }}</title>
     {% else %}
-    <title>LArIAT near real-time DQM</title>
+    <title>LArIAT near-real-time DQM</title>
     {% endif %}
     <link href="{{ url_for('static', filename='lib/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css" media="screen">
     <link href="{{ url_for('static', filename='lib/d3-tip/css/d3-tip.min.css') }}" rel="stylesheet" type="text/css" media="screen">
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet" type="text/css" media="screen">
+    <link href="{{ url_for('static', filename='css/mwpc-histograms.css') }}" rel="stylesheet" type="text/css" media="screen">
   </head>
   <body>
 
