@@ -44,10 +44,10 @@ def wut():
     return render_template('wut.html',
                            title="Wave Union TDC")
 
-@app.route('/triggers')
-def triggers():
-    return render_template('triggers.html',
-                           title="Triggers")
+@app.route('/data-blocks')
+def data_blocks():
+    return render_template('data-blocks.html',
+                           title="Data Blocks")
 
 @app.route('/physics')
 def physics():
