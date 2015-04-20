@@ -314,7 +314,7 @@ def json():
                 )
             p = redis.pipeline()
             for key in keys:
-                p.lrange(key, 0, -1)
+                p.lrange(key, start, stop-1)
             counts = np.sum(
                 np.array(p.execute(), dtype=np.int64), axis=0
                 )
@@ -329,7 +329,7 @@ def json():
                     { 'x': x, 'y': y }
                     for x, y in zip(
                         bins,
-                        counts_dict[name][start:stop]
+                        counts_dict[name]
                         )
                     ]
                 }
