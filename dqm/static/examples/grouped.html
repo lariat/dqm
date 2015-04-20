@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>DQM &mdash; Stacked Bar Chart</title>
+
+    <style>
+      body {
+          font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      }
+
+      .grouped-chart-container {
+          position: relative;
+      }
+
+      .grouped-chart-container .controls {
+          position: absolute;
+          top: 12px;
+          left: 18px;
+      }
+
+      .grouped-chart-container .tooltip {
+          position: absolute;
+          font-size: 13px;
+          white-space: nowrap;
+          border: 1px solid black;
+          background-color: white;
+          pointer-events: none;
+          border-radius: 5px;
+          display: none;
+      }
+
+      .grouped-chart-container .tooltip-wrapper {
+          position: relative;
+          padding: 6px;
+      }
+
+      .grouped-chart-container .tooltip-wrapper:before {
+            content: "";
+            position: absolute;
+            width: 0;
+            height: 0;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 10px solid;
+            border-color: black transparent transparent transparent;
+      }
+
+      .grouped-chart-container .tooltip-wrapper:after {
+            content: "";
+            position: absolute;
+            width: 0;
+            height: 0;
+            bottom: -19px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 10px solid;
+            border-color: white transparent transparent transparent;
+      }
+
+      .grouped-chart-container .tooltip-header {
+          padding: 0;
+          margin: 0;
+      }
+
+      .grouped-chart path,
+      .grouped-chart line,
+      .grouped-chart rect {
+          shape-rendering: crispEdges;
+      }
+
+      .grouped-chart text {
+          font: 10px sans-serif;
+      }
+
+      .grouped-chart .axis path,
+      .grouped-chart .axis line {
+          fill: none;
+          stroke: #000;
+      }
+
+      .grouped-chart .series-yes {
+          fill: #CD4638;
+      }
+
+      .grouped-chart .series-no {
+          fill: #CCC;
+      }
+
+      .grouped-chart .series-maybe {
+          fill: steelblue;
+      }
+
+      .grouped-chart .grid-lines-container {
+          fill: none;
+          stroke: lightgrey;
+      }
+
+      .grouped-chart .layer rect {
+          opacity: 0.8;
+          transition: opacity 0.5s ease;
+      }
+
+      .grouped-chart .layer rect:hover {
+          opacity: 1;
+      }
+
+      .grouped-chart .legend {
+          cursor: pointer;
+      }
+
+      .grouped-chart .series-box {
+          stroke-width: 2px;
+      }
+
+      .grouped-chart .series-yes .series-box {
+          stroke: #CD4638;
+      }
+
+      .grouped-chart .series-no .series-box {
+          stroke: #CCC;
+      }
+
+      .grouped-chart .disabled .series-box {
+          fill-opacity: 0;
+      }
+
+      .grouped-chart .series-label {
+          fill: black;
+      }
+    </style>
+
+  </head>
+  <body>
+
+  <div class="grouped-chart-container js-grouped-chart-container">
+    <svg class="grouped-chart js-grouped-chart"></svg>
+    <div class="tooltip">
+      <div class="tooltip-wrapper">
+        <h3 class="tooltip-header"></h3>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/lib/jquery/js/jquery.min.js"></script>
+  <script src="/static/lib/d3/js/d3.min.js"></script>
+
+  <script>
+    var seriesNames = ["Yes", "No", "Maybe"],
+        numSamples = 22,
+        numLayers = seriesNames.length,
+        data = seriesNames.map(function (name) {
+            return {
+                name: name,
+                values: bumpLayer(numSamples, 0.1)
+            };
+        }),
+        stack = d3.layout.stack().values(function (d) { return d.values; });
+
+    stack(data);
+
+    var chartMode = "grouped",
+        margin = {top: 45, right: 10, bottom: 20, left: 30},
+        width = document.querySelectorAll(".js-grouped-chart-container")[0].clientWidth - margin.left - margin.right,
+        height = 500 - margin.top - margin.bottom,
+        animationDuration = 400,
+        delayBetweenBarAnimation = 10,
+        numTicks = 8,
+        maxGroupY = d3.max(data, function (series) { return d3.max(series.values, function (d) { return d.y; }); }),
+        legendX = width + margin.right,
+        legendY = 18,
+        legendSeriesBoxWidth = 15,
+        legendSeriesBoxHeight = 9.5,
+        paddingBetweenLegendBoxAndLabel = 5,
+        legendSeriesLabelX = legendSeriesBoxWidth + paddingBetweenLegendBoxAndLabel,
+        legendSeriesLabelY = 5,
+        paddingBetweenLegends = 25,
+        tooltipBottomMargin = 12;
+
+    var binsScale = d3.scale.ordinal()
+        .domain(d3.range(numSamples))
+        .rangeBands([0, width], 0.1, 0.05);
+
+    var xScale = d3.scale.linear()
+        .domain([0, numSamples])
+        .range([0, width]);
+
+    var yScale = d3.scale.linear()
+        .domain([0, maxGroupY])
+        .range([height, 0]);
+
+    var xAxis = d3.svg.axis()
+        .scale(xScale)
+        .ticks(numSamples)
+        .orient("bottom");
+
+    var yAxis = d3.svg.axis()
+        .scale(yScale)
+        .ticks(numTicks)
+        .orient("left");
+
+    var seriesClass = function (seriesName) { return seriesName.toLowerCase(); };
+
+    var layerClass = function (d) { return "layer series-" + seriesClass(d.name); };
+
+    var barDelay = function (d, i) { return i * delayBetweenBarAnimation; };
+
+    var joinKey = function (d) { return d.name; };
+
+    var groupedBarX = function (d, i, j) { return binsScale(d.x) + binsScale.rangeBand() / seriesNames.length * j; };
+
+    var groupedBarY = function (d) { return yScale(d.y); };
+
+    var groupedBarBaseY = height;
+
+    var groupedBarWidth = function () { return binsScale.rangeBand() / seriesNames.length; };
+
+    var groupedBarHeight =  function (d) { return height - yScale(d.y); };
+
+    var addTooltip = function (selection) {
+        selection
+            .on("mouseover", showTooltip)
+            .on("mouseout", hideTooltip);
+    };
+
+    var animateGroupedBars = function (selection) {
+        selection.transition()
+            .duration(animationDuration)
+            .delay(barDelay)
+            .attr("y", groupedBarY)
+            .attr("height", groupedBarHeight);
+    }
+
+    var svg = d3.select(".js-grouped-chart")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom);
+
+    var mainContainer = svg.append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    var gridContainer = mainContainer.append("g")
+        .attr("class", "grid-lines-container");
+
+    gridContainer.selectAll(".grid-line").data(yScale.ticks(numTicks))
+            .enter().append("line")
+                .attr("class", "grid-line")
+                .attr("x1", 0)
+                .attr("x2", width)
+                .attr("y1", yScale)
+                .attr("y2", yScale);
+
+    mainContainer.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+
+    mainContainer.append("g")
+        .attr("class", "y axis")
+        .call(yAxis);
+
+    var layers = mainContainer.selectAll(".layer").data(data);
+
+    layers.enter().append("g")
+            .attr("class", layerClass);
+
+    layers.selectAll("rect").data(function (d) { return d.values; })
+        .enter().append("rect")
+            .attr("x", groupedBarX)
+            .attr("y", height)
+            .attr("width", groupedBarWidth)
+            .attr("height", 0)
+            .call(addTooltip)
+            .call(animateGroupedBars);
+
+    function showTooltip() {
+        var bar,
+            tooltip;
+
+        bar = d3.select(this),
+        tooltip = $(".tooltip");
+
+        tooltip.find("h3").text(bar.datum().y);
+        tooltip.css({
+            top:  margin.top  + parseFloat(bar.attr("y")) - tooltip.outerHeight() - tooltipBottomMargin,
+            left: margin.left + parseFloat(bar.attr("x")) + (bar.attr("width") / 2) - (tooltip.outerWidth() / 2),
+        }).fadeIn();
+    }
+
+    function hideTooltip () {
+        $(".tooltip").stop().hide();
+    }
+
+    function update() {
+
+      /////////////////////////////////////////////////////////////////////////
+      // get new data
+      /////////////////////////////////////////////////////////////////////////
+      var newData = seriesNames.map(function (name) {
+              return {
+                  name: name,
+                  values: bumpLayer(numSamples, 0.1)
+              };
+          });
+
+      stack(newData);
+
+      /////////////////////////////////////////////////////////////////////////
+      // update y-axis
+      /////////////////////////////////////////////////////////////////////////
+
+      maxGroupY = d3.max(newData, function (series) { return d3.max(series.values, function (d) { return d.y; }); });
+
+      yScale.domain([0, maxGroupY]);
+
+      mainContainer.select(".y.axis")
+          .transition()
+          .duration(1000)
+          .ease("linear")
+          .call(yAxis);
+
+      /////////////////////////////////////////////////////////////////////////
+      // update grid lines
+      /////////////////////////////////////////////////////////////////////////
+
+      var gridSelection = gridContainer.selectAll(".grid-line").data(yScale.ticks(numTicks));
+
+      gridSelection.enter()
+          .append("line")
+            .attr("class", "grid-line")
+            .attr("x1", 0)
+            .attr("x2", width)
+            .attr("y1", yScale)
+            .attr("y2", yScale);
+
+      gridSelection.exit().remove();
+
+      gridContainer.selectAll(".grid-line")
+          .transition()
+          .duration(1000)
+          .ease("linear")
+          .attr("x1", 0)
+          .attr("x2", width)
+          .attr("y1", yScale)
+          .attr("y2", yScale);
+
+      /////////////////////////////////////////////////////////////////////////
+      // update bars
+      /////////////////////////////////////////////////////////////////////////
+
+      var groups = mainContainer.selectAll(".layer").data(newData);
+
+      groups.enter().append("g")
+              .attr("class", layerClass);
+
+      var rect = groups.selectAll("rect").data(function (d) { return d.values; });
+
+      rect.enter().append("rect")
+          .attr("x", groupedBarX)
+          .attr("width", groupedBarWidth);
+
+      rect.transition().duration(1000)
+          .ease("linear")
+          .attr("y", groupedBarY)
+          .attr("height", groupedBarHeight);
+
+      rect.exit()
+        .transition().duration(1000)
+          .ease("circle")
+        .attr("x", width)
+        .remove();
+
+      groups.exit()
+        .transition().duration(1000)
+          .ease("circle")
+        .attr("x", width)
+        .remove();
+
+    }
+
+    function bumpLayer(n, o) {
+
+      function bump(a) {
+        var x = 1 / (.1 + Math.random()),
+            y = 2 * Math.random() - .5,
+            z = 10 / (.1 + Math.random());
+        for (var i = 0; i < n; i++) {
+          var w = (i / n - y) * z;
+          a[i] += x * Math.exp(-w * w);
+        }
+      }
+
+      var a = [], i;
+      for (i = 0; i < n; ++i) a[i] = o + o * Math.random();
+      for (i = 0; i < 5; ++i) bump(a);
+      return a.map(function(d, i) { return {x: i, y: Math.max(0, d)}; });
+    }
+
+    var timeout;
+    function loadNext() {
+      update();
+      timeout = setTimeout(loadNext, 3500);
+    }
+    loadNext();
+  </script>
+
+  </body>
+</html>
