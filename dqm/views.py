@@ -163,7 +163,7 @@ def json():
             }
         return jsonify(json_data)
 
-    elif query == 'trigger-histogram':
+    elif query == 'data-block-histogram':
         device = request.args.get('device', None)
         board_id = request.args.get('board_id', -1)
         device_key = None
@@ -177,7 +177,7 @@ def json():
             device_key = 'wut/'
         if device_key == None:
             return jsonify(json_data)
-        keys = redis.keys(key_prefix + device_key + 'trigger-histogram')
+        keys = redis.keys(key_prefix + device_key + 'data-block-histogram')
         p = redis.pipeline()
         for key in keys:
             p.lrange(key, 0, -1)
@@ -194,7 +194,7 @@ def json():
             }
         return jsonify(json_data)
 
-    elif query == 'trigger-counts':
+    elif query == 'data-block-counts':
         counts_dict = {}
         device_keys = {
             'v1740/board-0-': 'v1740_board_0',
@@ -211,7 +211,7 @@ def json():
             'wut/': 'wut',
             }
         for device_key, device_value in device_keys.items():
-            keys = redis.keys(key_prefix + device_key + 'trigger-histogram')
+            keys = redis.keys(key_prefix + device_key + 'data-block-histogram')
             p = redis.pipeline()
             for key in keys:
                 p.lrange(key, 0, -1)

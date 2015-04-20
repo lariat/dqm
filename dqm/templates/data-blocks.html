@@ -21,62 +21,62 @@
             <tr>
               <th scope="row">1</th>
               <td><a href="#v1751-boards">CAEN V1751 board 0</a></td>
-              <td id="v1751-board-0-triggers"></td>
+              <td id="v1751-board-0-data-blocks"></td>
             </tr>
             <tr>
               <th scope="row">2</th>
               <td><a href="#v1751-boards">CAEN V1751 board 1</a></td>
-              <td id="v1751-board-1-triggers"></td>
+              <td id="v1751-board-1-data-blocks"></td>
             </tr>
             <tr>
               <th scope="row">3</th>
               <td><a href="#mwpc">Multi-wire proportional chambers</a></td>
-              <td id="mwpc-triggers"></td>
+              <td id="mwpc-data-blocks"></td>
             </tr>
             <tr>
               <th scope="row">4</th>
               <td><a href="#wut">Wave union TDC</a></td>
-              <td id="wut-triggers"></td>
+              <td id="wut-data-blocks"></td>
             </tr>
             <tr>
               <th scope="row">5</th>
               <td>CAEN V1740 board 0</td>
-              <td id="v1740-board-0-triggers"></td>
+              <td id="v1740-board-0-data-blocks"></td>
             </tr>
             <tr>
               <th scope="row">6</th>
               <td>CAEN V1740 board 1</td>
-              <td id="v1740-board-1-triggers"></td>
+              <td id="v1740-board-1-data-blocks"></td>
             </tr>
             <tr>
               <th scope="row">7</th>
               <td>CAEN V1740 board 2</td>
-              <td id="v1740-board-2-triggers"></td>
+              <td id="v1740-board-2-data-blocks"></td>
             </tr>
             <tr>
               <th scope="row">8</th>
               <td>CAEN V1740 board 3</td>
-              <td id="v1740-board-3-triggers"></td>
+              <td id="v1740-board-3-data-blocks"></td>
             </tr>
             <tr>
               <th scope="row">9</th>
               <td>CAEN V1740 board 4</td>
-              <td id="v1740-board-4-triggers"></td>
+              <td id="v1740-board-4-data-blocks"></td>
             </tr>
             <tr>
               <th scope="row">10</th>
               <td>CAEN V1740 board 5</td>
-              <td id="v1740-board-5-triggers"></td>
+              <td id="v1740-board-5-data-blocks"></td>
             </tr>
             <tr>
               <th scope="row">11</th>
               <td>CAEN V1740 board 6</td>
-              <td id="v1740-board-6-triggers"></td>
+              <td id="v1740-board-6-data-blocks"></td>
             </tr>
             <tr>
               <th scope="row">12</th>
               <td>CAEN V1740 board 7</td>
-              <td id="v1740-board-7-triggers"></td>
+              <td id="v1740-board-7-data-blocks"></td>
             </tr>
           </tbody>
         </table>
@@ -87,8 +87,8 @@
           <h3 id="v1751-boards" class="panel-title">CAEN V1751 boards</h3>
         </div>
         <div class="panel-body text-center">
-          <div id="v1751-board-0-trigger-histogram"></div>
-          <div id="v1751-board-1-trigger-histogram"></div>
+          <div id="v1751-board-0-data-block-histogram"></div>
+          <div id="v1751-board-1-data-block-histogram"></div>
         </div>
       </div>
 
@@ -97,7 +97,7 @@
           <h3 id="mwpc" class="panel-title">Multi-wire proportional chambers</h3>
         </div>
         <div class="panel-body text-center">
-          <div id="mwpc-trigger-histogram"></div>
+          <div id="mwpc-data-block-histogram"></div>
         </div>
       </div>
 
@@ -106,7 +106,7 @@
           <h3 id="wut" class="panel-title">Wave union TDC</h3>
         </div>
         <div class="panel-body text-center">
-          <div id="wut-trigger-histogram"></div>
+          <div id="wut-data-block-histogram"></div>
         </div>
       </div>
 
@@ -114,7 +114,7 @@
 
 {% include 'scripts.html' %}
 
-    <script src="{{ url_for('static', filename='js/trigger-table.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/trigger-histograms.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/data-block-table.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/data-block-histograms.js') }}"></script>
 
 {% endblock %}

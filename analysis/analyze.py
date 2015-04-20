@@ -254,12 +254,13 @@ p.execute()
 
 if v1740_ok:
     # set keys
-    v1740_trigger_histogram_keys = [
-        spill_key_prefix + 'v1740/board-{}-trigger-histogram'.format(board_id)
+    v1740_data_block_histogram_keys = [
+        spill_key_prefix +
+        'v1740/board-{}-data-block-histogram'.format(board_id)
         for board_id in xrange(0, 8)
         ]
 
-    # get arrays of CAEN V1740 trigger times
+    # get arrays of CAEN V1740 data block time stamps
     # each trigger time tag count is 8 nanoseconds
     v1740_times = [
         rawdatautils.get_caen_trigger_time_tag(file_path, board_id) \
@@ -267,21 +268,21 @@ if v1740_ok:
         for board_id in xrange(0, 8)
         ]
 
-    # get histogram of CAEN V1740 trigger times; units in seconds
-    v1740_trigger_histograms = [
+    # get histogram of CAEN V1740 data block time stamps; units in seconds
+    v1740_data_block_histograms = [
         np.histogram(v1740_times[board_id] * 1e-6, bins=300, range=(0, 30))[0]
         for board_id in xrange(0, 8)
         ]
 
     # if keys already exist in redis, delete the existing keys
-    redis.delete(*v1740_trigger_histogram_keys)
+    redis.delete(*v1740_data_block_histogram_keys)
 
     # send commands in a pipeline to save on round-trip time
     p = redis.pipeline()
     for board_id in xrange(0, 8):
-        p.rpush(v1740_trigger_histogram_keys[board_id],
-                *v1740_trigger_histograms[board_id])
-        p.expire(v1740_trigger_histogram_keys[board_id], key_timeout)
+        p.rpush(v1740_data_block_histogram_keys[board_id],
+                *v1740_data_block_histograms[board_id])
+        p.expire(v1740_data_block_histogram_keys[board_id], key_timeout)
     p.execute()
 
     # tell redis that this v1740 tree is okay
@@ -313,10 +314,10 @@ else:
 
 if v1751_ok:
     # set keys
-    v1751_board_0_trigger_histogram_key = spill_key_prefix + \
-        'v1751/board-0-trigger-histogram'
-    v1751_board_1_trigger_histogram_key = spill_key_prefix + \
-        'v1751/board-1-trigger-histogram'
+    v1751_board_0_data_block_histogram_key = spill_key_prefix + \
+        'v1751/board-0-data-block-histogram'
+    v1751_board_1_data_block_histogram_key = spill_key_prefix + \
+        'v1751/board-1-data-block-histogram'
     v1751_board_0_adc_count_histogram_keys = [
         spill_key_prefix + 'v1751/board-0-channel-{}-adc-count-histogram' \
         .format(channel)
@@ -330,24 +331,24 @@ if v1751_ok:
     v1751_tof_histogram_key = spill_key_prefix + 'v1751/tof-histogram'
 
     # if keys already exist in redis, delete the existing keys
-    redis.delete(v1751_board_0_trigger_histogram_key)
-    redis.delete(v1751_board_1_trigger_histogram_key)
+    redis.delete(v1751_board_0_data_block_histogram_key)
+    redis.delete(v1751_board_1_data_block_histogram_key)
     redis.delete(v1751_board_0_adc_count_histogram_keys)
     redis.delete(v1751_board_1_adc_count_histogram_keys)
     redis.delete(v1751_tof_histogram_key)
 
-    # get arrays of CAEN V1751 trigger times
+    # get arrays of CAEN V1751 data block time stamps
     # each trigger time tag count is 8 nanoseconds
     v1751_board_0_time = rawdatautils.get_caen_trigger_time_tag(file_path, 8) \
                          * 0.008  # microseconds
     v1751_board_1_time = rawdatautils.get_caen_trigger_time_tag(file_path, 9) \
                          * 0.008  # microseconds
 
-    # get histogram of CAEN V1751 trigger times; units in seconds
-    v1751_board_0_trigger_histogram, bin_edges = np.histogram(
+    # get histogram of CAEN V1751 data block time stamps; units in seconds
+    v1751_board_0_data_block_histogram, bin_edges = np.histogram(
         v1751_board_0_time * 1e-6, bins=300, range=(0, 30)
         )
-    v1751_board_1_trigger_histogram, bin_edges = np.histogram(
+    v1751_board_1_data_block_histogram, bin_edges = np.histogram(
         v1751_board_1_time * 1e-6, bins=300, range=(0, 30)
         )
 
@@ -367,12 +368,12 @@ if v1751_ok:
 
     # send commands in a pipeline to save on round-trip time
     p = redis.pipeline()
-    p.rpush(v1751_board_0_trigger_histogram_key,
-            *v1751_board_0_trigger_histogram)
-    p.rpush(v1751_board_1_trigger_histogram_key,
-            *v1751_board_1_trigger_histogram)
-    p.expire(v1751_board_0_trigger_histogram_key, key_timeout)
-    p.expire(v1751_board_1_trigger_histogram_key, key_timeout)
+    p.rpush(v1751_board_0_data_block_histogram_key,
+            *v1751_board_0_data_block_histogram)
+    p.rpush(v1751_board_1_data_block_histogram_key,
+            *v1751_board_1_data_block_histogram)
+    p.expire(v1751_board_0_data_block_histogram_key, key_timeout)
+    p.expire(v1751_board_1_data_block_histogram_key, key_timeout)
     for channel in xrange(0, 8):
         p.rpush(v1751_board_0_adc_count_histogram_keys[channel],
                 *v1751_board_0_adc_count_histograms[channel])
@@ -413,7 +414,8 @@ else:
 
 if mwpc_ok:
     # set keys
-    mwpc_trigger_histogram_key = spill_key_prefix + 'mwpc/trigger-histogram'
+    mwpc_data_block_histogram_key = spill_key_prefix + \
+        'mwpc/data-block-histogram'
     # set list of keys for the 16 TDCs of the MWPCs
     mwpc_tdc_timing_histogram_keys = [
         spill_key_prefix + 'mwpc/tdc-{}-timing-histogram'.format(tdc_index+1)
@@ -441,7 +443,7 @@ if mwpc_ok:
         ]
 
     # if keys already exist in redis, delete the existing keys
-    redis.delete(mwpc_trigger_histogram_key)
+    redis.delete(mwpc_data_block_histogram_key)
     redis.delete(*mwpc_tdc_timing_histogram_keys)
     redis.delete(*mwpc_tdc_good_hit_timing_histogram_keys)
     redis.delete(*mwpc_tdc_good_hit_channel_histogram_keys)
@@ -453,8 +455,8 @@ if mwpc_ok:
     mwpc_time = rawdatautils.get_mwpc_tdc_time_stamp(file_path) \
                 / 106.208  # microseconds
 
-    # get histogram of MWPC trigger times; units in seconds
-    mwpc_trigger_histogram, bin_edges = np.histogram(
+    # get histogram of MWPC data block time stamps; units in seconds
+    mwpc_data_block_histogram, bin_edges = np.histogram(
         mwpc_time * 1e-6, bins=300, range=(0, 30)
         )
 
@@ -494,8 +496,8 @@ if mwpc_ok:
 
     # send commands in a pipeline to save on round-trip time
     p = redis.pipeline()
-    p.rpush(mwpc_trigger_histogram_key, *mwpc_trigger_histogram)
-    p.expire(mwpc_trigger_histogram_key, key_timeout)
+    p.rpush(mwpc_data_block_histogram_key, *mwpc_data_block_histogram)
+    p.expire(mwpc_data_block_histogram_key, key_timeout)
     for tdc_index in xrange(0, 16):
         p.rpush(mwpc_tdc_timing_histogram_keys[tdc_index],
                 *mwpc_tdc_hit_timing_histograms[tdc_index])
@@ -551,24 +553,25 @@ else:
 
 if wut_ok:
     # set keys
-    wut_trigger_histogram_key = spill_key_prefix + 'wut/trigger-histogram'
+    wut_data_block_histogram_key = spill_key_prefix + \
+        'wut/data-block-histogram'
 
     # each time header count is 16 microseconds
     wut_time = rawdatautils.get_wut_time_header(file_path) \
                * 16.0  # microseconds
 
-    # get histogram of WUT trigger times; units in seconds
-    wut_trigger_histogram, bin_edges = np.histogram(
+    # get histogram of WUT data block time stamps; units in seconds
+    wut_data_block_histogram, bin_edges = np.histogram(
         wut_time * 1e-6, bins=300, range=(0, 30)
         )
 
     # if keys already exist in redis, delete the existing keys
-    redis.delete(wut_trigger_histogram_key)
+    redis.delete(wut_data_block_histogram_key)
 
     # send commands in a pipeline to save on round-trip time
     p = redis.pipeline()
-    p.rpush(wut_trigger_histogram_key, *wut_trigger_histogram)
-    p.expire(wut_trigger_histogram_key, key_timeout)
+    p.rpush(wut_data_block_histogram_key, *wut_data_block_histogram)
+    p.expire(wut_data_block_histogram_key, key_timeout)
     p.execute()
 
     # tell redis that this wut tree is okay
