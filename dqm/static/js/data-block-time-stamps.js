@@ -22,7 +22,7 @@ $(document).ready(function() {
 
   var mouseover = function (d) {
       var name = d.name;
-      d3.selectAll(".line, .legend.rect, .legend.text")
+      d3.selectAll("path.line, .legend.rect, .legend.text")
           .transition().duration(500)
           .style("opacity", function(d) {
               return d.name == name ? 1 : 0.1;
@@ -30,7 +30,7 @@ $(document).ready(function() {
   }
 
   var mouseout = function (d) {
-      d3.selectAll(".line")
+      d3.selectAll("path.line")
           .transition().duration(500)
           .style("opacity", 0.5);
       d3.selectAll(".legend.rect, .legend.text")
