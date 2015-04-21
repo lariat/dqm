@@ -165,6 +165,17 @@ def test_root_file(file_path):
 
     return v1740_ok, v1751_ok, mwpc_ok, wut_ok
 
+def mwpc_hits_histogram(hit_array, tdc_index, column, bins, bins_range):
+    try:
+        histogram = np.histogram(
+            hit_array[tdc_index][:, column],
+            bins=bins,
+            range=bins_range
+            )[0]
+    except:
+        histogram = np.zeros(16, dtype=np.int64)
+    return histogram
+
 parser = argparse.ArgumentParser(description="Analyze from ROOT file.")
 parser.add_argument('file', type=str, help="path to ROOT file")
 args = parser.parse_args()
@@ -474,23 +485,19 @@ if mwpc_ok:
 
     # get channel and timing histograms of good and bad hits
     mwpc_tdc_good_hit_channel_histograms = [
-        np.histogram(good_hit_array[tdc_index][:, 0],
-                     bins=64, range=(0, 64))[0]
+        mwpc_hits_histogram(good_hit_array, tdc_index, 0, 64, (0, 64))
         for tdc_index in xrange(0, 16)
         ]
     mwpc_tdc_good_hit_timing_histograms = [
-        np.histogram(good_hit_array[tdc_index][:, 1],
-                     bins=1024, range=(0, 1024))[0]
+        mwpc_hits_histogram(good_hit_array, tdc_index, 1, 1024, (0, 1024))
         for tdc_index in xrange(0, 16)
         ]
     mwpc_tdc_bad_hit_channel_histograms = [
-        np.histogram(bad_hit_array[tdc_index][:, 0],
-                     bins=64, range=(0, 64))[0]
+        mwpc_hits_histogram(good_hit_array, tdc_index, 0, 64, (0, 64))
         for tdc_index in xrange(0, 16)
         ]
     mwpc_tdc_bad_hit_timing_histograms = [
-        np.histogram(bad_hit_array[tdc_index][:, 1],
-                     bins=1024, range=(0, 1024))[0]
+        mwpc_hits_histogram(good_hit_array, tdc_index, 1, 1024, (0, 1024))
         for tdc_index in xrange(0, 16)
         ]
 
