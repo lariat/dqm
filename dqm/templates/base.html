@@ -3,7 +3,7 @@
     ('/v1740', 'v1740', 'V1740 Boards'),
     ('/v1751', 'v1751', 'V1751 Boards'),
     ('/mwpc-channel', 'mwpc', 'Wire Chambers'),
-    ('/data-blocks', 'data-blocks', 'Data Blocks'),
+    ('/data-blocks', 'data_blocks', 'Data Blocks'),
     ('/physics', 'physics', 'Physics'),
     ('/log', 'log', 'Log'),
 ] -%}
@@ -22,6 +22,7 @@
     {% endif %}
     <link href="{{ url_for('static', filename='lib/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css" media="screen">
     <link href="{{ url_for('static', filename='lib/d3-tip/css/d3-tip.min.css') }}" rel="stylesheet" type="text/css" media="screen">
+    <link href="{{ url_for('static', filename='lib/metricsgraphics/css/metricsgraphics.css') }}" rel="stylesheet" type="text/css" media="screen">
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet" type="text/css" media="screen">
     <link href="{{ url_for('static', filename='css/mwpc-histograms.css') }}" rel="stylesheet" type="text/css" media="screen">
   </head>

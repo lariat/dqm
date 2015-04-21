@@ -1,7 +1,135 @@
 {% extends "base.html" %}
-{% set active_page = "data-blocks" %}
+{% set active_page = "data_blocks" %}
 
 {% block content %}
+
+    <style>
+      body {
+          font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      }
+
+      .grouped-chart-container {
+          position: relative;
+      }
+
+      .grouped-chart-container .controls {
+          position: absolute;
+          top: 12px;
+          left: 18px;
+      }
+
+      .grouped-chart-container .tooltip {
+          position: absolute;
+          font-size: 13px;
+          white-space: nowrap;
+          border: 1px solid black;
+          background-color: white;
+          pointer-events: none;
+          border-radius: 5px;
+          display: none;
+      }
+
+      .grouped-chart-container .tooltip-wrapper {
+          position: relative;
+          padding: 6px;
+      }
+
+      .grouped-chart-container .tooltip-wrapper:before {
+            content: "";
+            position: absolute;
+            width: 0;
+            height: 0;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 10px solid;
+            border-color: black transparent transparent transparent;
+      }
+
+      .grouped-chart-container .tooltip-wrapper:after {
+            content: "";
+            position: absolute;
+            width: 0;
+            height: 0;
+            bottom: -19px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 10px solid;
+            border-color: white transparent transparent transparent;
+      }
+
+      .grouped-chart-container .tooltip-header {
+          padding: 0;
+          margin: 0;
+      }
+
+      .grouped-chart path,
+      .grouped-chart line,
+      .grouped-chart rect {
+          shape-rendering: crispEdges;
+      }
+
+      .grouped-chart text {
+          font: 10px sans-serif;
+      }
+
+      .grouped-chart .axis path,
+      .grouped-chart .axis line {
+          fill: none;
+          stroke: #000;
+      }
+
+      .grouped-chart .series-v1740 {
+          fill: #CD4638;
+      }
+
+      .grouped-chart .series-v1751 {
+          fill: #CCC;
+      }
+
+      .grouped-chart .series-mwpc {
+          fill: steelblue;
+      }
+
+      .grouped-chart .grid-lines-container {
+          fill: none;
+          stroke: lightgrey;
+      }
+
+      .grouped-chart .layer rect {
+          opacity: 0.8;
+          transition: opacity 0.5s ease;
+      }
+
+      .grouped-chart .layer rect:hover {
+          opacity: 1;
+      }
+
+      .grouped-chart .legend {
+          cursor: pointer;
+      }
+
+      .grouped-chart .series-box {
+          stroke-width: 2px;
+      }
+
+      .grouped-chart .series-yes .series-box {
+          stroke: #CD4638;
+      }
+
+      .grouped-chart .series-no .series-box {
+          stroke: #CCC;
+      }
+
+      .grouped-chart .disabled .series-box {
+          fill-opacity: 0;
+      }
+
+      .grouped-chart .series-label {
+          fill: black;
+      }
+    </style>
+
 
     <div class="container">
 
@@ -82,31 +210,16 @@
         </table>
       </div>
 
-      <div class="panel panel-default">
+      <div class="panel panel-primary">
         <div class="panel-heading">
-          <h3 id="v1751-boards" class="panel-title">CAEN V1751 boards</h3>
+          <h3 id="v1751-boards" class="panel-title">Data block time stamps</h3>
         </div>
         <div class="panel-body text-center">
-          <div id="v1751-board-0-data-block-histogram"></div>
-          <div id="v1751-board-1-data-block-histogram"></div>
-        </div>
-      </div>
-
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <h3 id="mwpc" class="panel-title">Multi-wire proportional chambers</h3>
-        </div>
-        <div class="panel-body text-center">
-          <div id="mwpc-data-block-histogram"></div>
-        </div>
-      </div>
-
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <h3 id="wut" class="panel-title">Wave union TDC</h3>
-        </div>
-        <div class="panel-body text-center">
-          <div id="wut-data-block-histogram"></div>
+          <div id="data-block-time-stamps"></div>
+          <div id="data-block-time-stamp"></div>
+          {#
+          <svg class="grouped-chart js-grouped-chart" id="data-block-time-stamp-histogram"></svg>
+          #}
         </div>
       </div>
 
@@ -115,6 +228,9 @@
 {% include 'scripts.html' %}
 
     <script src="{{ url_for('static', filename='js/data-block-table.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/data-block-histograms.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/data-block-time-stamps.js') }}"></script>
+    {#
+    <script src="{{ url_for('static', filename='js/data-block-time-stamp-histogram.js') }}"></script>
+    #}
 
 {% endblock %}

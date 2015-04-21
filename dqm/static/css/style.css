@@ -37,6 +37,18 @@ body {
   shape-rendering: crispEdges;
 }
 
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+.area {
+  fill: lightsteelblue;
+  opacity: 0.05;
+  stroke-width: 0;
+}
+
 .d3-tip {
   line-height: 1.2;
   font-weight: normal;

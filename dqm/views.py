@@ -31,8 +31,10 @@ def mwpc():
 
 @app.route('/mwpc-channel')
 def mwpc_channel():
-    return render_template('mwpc-channel.html',
-                           title="Multi-Wire Proportional Chambers: Channel Occupancy")
+    return render_template(
+        'mwpc-channel.html',
+        title="Multi-Wire Proportional Chambers: Channel Occupancy"
+        )
 
 @app.route('/mwpc-timing')
 def mwpc_timing():
@@ -220,6 +222,93 @@ def json():
         json_data = counts_dict
         return jsonify(json_data)
 
+    elif query == 'data-block-time-stamp-histogram':
+        #names = ('v1740', 'v1751', 'mwpc', 'wut')
+        names = ('v1740', 'v1751', 'mwpc')
+        bins = np.linspace(0, 30, 300, endpoint=False, dtype=np.float64)
+        counts_dict = {}
+        device_keys = {
+            'v1740': 'v1740/board-0-',
+            'v1751': 'v1751/board-0-',
+            'mwpc': 'mwpc/',
+            'wut': 'wut/',
+            }
+        for name in names:
+            keys = redis.keys(key_prefix + device_keys[name] +
+                              'data-block-histogram')
+            p = redis.pipeline()
+            for key in keys:
+                p.lrange(key, 0, -1)
+            counts = np.sum(
+                np.array(p.execute(), dtype=np.int64), axis=0
+                )
+            if type(counts) != np.ndarray:
+                return jsonify(json_data)
+            counts_dict[name] = counts
+        data = [
+            {
+                'name': name,
+                'values': [
+                    { 'x': round(x, 1), 'y': y }
+                    for x, y in zip(
+                        bins,
+                        counts_dict[name]
+                        )
+                    ]
+                }
+            for name in names
+            ]
+        json_data = {
+            'query': query,
+            'data': data,
+            }
+        return jsonify(json_data)
+
+    elif query == 'data-block-time-stamps':
+        names = ('v1740', 'v1751', 'mwpc', 'wut')
+        #names = ('v1740', 'v1751', 'mwpc')
+        bins = np.linspace(0, 30, 300, endpoint=False, dtype=np.float64)
+        counts_dict = {}
+        device_keys = {
+            'v1740': 'v1740/board-0-',
+            'v1751': 'v1751/board-0-',
+            'mwpc': 'mwpc/',
+            'wut': 'wut/',
+            }
+        for name in names:
+            keys = redis.keys(key_prefix + device_keys[name] +
+                              'data-block-histogram')
+            p = redis.pipeline()
+            for key in keys:
+                p.lrange(key, 0, -1)
+            counts = np.sum(
+                np.array(p.execute(), dtype=np.int64), axis=0
+                )
+            if type(counts) != np.ndarray:
+                return jsonify(json_data)
+            counts_dict[name] = counts
+        data = [
+            {
+                'time': round(t, 1),
+                'V1740': x,
+                'V1751': y,
+                'MWPC': z,
+                'WUT': u,
+                }
+                for t, x, y, z, u in zip(
+                    bins,
+                    counts_dict['v1740'],
+                    counts_dict['v1751'],
+                    counts_dict['mwpc'],
+                    counts_dict['wut'],
+                    )
+            ]
+        json_data = {
+            'query': query,
+            'data': data,
+            }
+        return jsonify(json_data)
+
     elif query == 'v1751-adc-count-histogram':
         board_id = request.args.get('board_id', -1)
         channel = request.args.get('channel', -1)
@@ -247,10 +336,8 @@ def json():
 
     elif query == 'mwpc-timing-histogram':
         tdc = request.args.get('tdc', -1)
-
         if int(tdc) not in range(1, 17):
             return jsonify(json_data)
-
         keys = redis.keys(key_prefix +
                           'mwpc/tdc-{}-timing-histogram'.format(tdc))
         p = redis.pipeline()
@@ -259,13 +346,10 @@ def json():
         counts = np.sum(np.array(p.execute(), dtype=np.int64), axis=0)
         if type(counts) != np.ndarray:
             return jsonify(json_data)
-
         bins = np.arange(200, 520, 1)
-
         data = [
             { 'bin': i, 'count': j } for i, j in zip(bins, counts)
             ]
-
         json_data = {
             'query': query,
             'data': data,
