@@ -285,7 +285,7 @@ def json():
                 np.array(p.execute(), dtype=np.int64), axis=0
                 )
             if type(counts) != np.ndarray:
-                return jsonify(json_data)
+                counts = np.zeros(bins.size, np.int64)
             counts_dict[name] = counts
         data = [
             {
