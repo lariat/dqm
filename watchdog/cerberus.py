@@ -11,16 +11,12 @@ from logging.handlers import RotatingFileHandler
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 
-from cleanup import cleanup
-
 log_dir = '/lariat/data/users/lariatdqm/log/watchdog'
 log_file_path = log_dir + '/proc.log'
 dqm_root = '/home/nfs/lariatdqm/local/dqm'
-daq_file_dir = '/lariat/data/users/lariatdqm/daqdata'
+daq_file_dir = '/daqdata/dropbox'
+daq_watch_file_dir = '/lariat/data/users/lariatdqm/daqdata'
 dqm_file_dir = '/lariat/data/users/lariatdqm/dqm'
-# number of days a file can exist in daq_file_dir before it is
-# deleted by the cleanup process
-days = 1
 
 format = '%(asctime)s %(name)-12s %(levelname)-8s %(message)s'
 date_format = '%Y-%m-%d %H:%M:%S'
@@ -61,8 +57,8 @@ def parse_dqm(file_path):
 
 class DaqFileHandler(PatternMatchingEventHandler):
     patterns = [
-        daq_file_dir + '/.lariat_r*_sr*.root.*',
-        daq_file_dir + '/lariat_r*_sr*.root',
+        #daq_file_dir + '/lariat_r*_sr*.root',
+        daq_watch_file_dir + '/lariat_r*_sr*.complete',
         ]
 
     def log(self, event):
@@ -90,9 +86,14 @@ class DaqFileHandler(PatternMatchingEventHandler):
     def process(self, event):
 
         if hasattr(event, 'dest_path'):
-            input_file_path = event.dest_path
+            watch_file_path = event.dest_path
         else:
-            input_file_path = event.src_path
+            watch_file_path = event.src_path
+
+        file_name = watch_file_path.split('/')[-1].replace('.complete',
+                                                           '.root')
+
+        input_file_path = daq_file_dir + '/' + file_name
 
         time_stamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
@@ -117,17 +118,24 @@ class DaqFileHandler(PatternMatchingEventHandler):
             cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
             )
 
+        cmd = [
+            'rm',
+            watch_file_path
+            ]
+
+        proc = subprocess.Popen(
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+            )
+
         while True:
             line = proc.stdout.readline()
             if not line:
                 break
             logger_daq.info(line.rstrip('\n'))
 
-        cleanup(days, daq_file_dir)
-
     def on_created(self, event):
         self.log(event)
-        #self.process(event)
+        self.process(event)
 
     def on_modified(self, event):
         self.log(event)
@@ -137,7 +145,7 @@ class DaqFileHandler(PatternMatchingEventHandler):
 
     def on_moved(self, event):
         self.log(event)
-        self.process(event)
+        #self.process(event)
 
 class DqmFileHandler(PatternMatchingEventHandler):
     patterns = [ dqm_file_dir + '/dqm_run_*_spill_*.root' ]
@@ -178,7 +186,7 @@ class DqmFileHandler(PatternMatchingEventHandler):
 
         cmd = [
             'python',
-            dqm_root + '/dqm/analyze.py',
+            dqm_root + '/analysis/analyze.py',
             input_file_path,
             ]
 
@@ -209,7 +217,7 @@ class DqmFileHandler(PatternMatchingEventHandler):
 if __name__ == '__main__':
 
     observer = Observer()
-    observer.schedule(DaqFileHandler(), path=daq_file_dir)
+    observer.schedule(DaqFileHandler(), path=daq_watch_file_dir)
     observer.schedule(DqmFileHandler(), path=dqm_file_dir)
     observer.start()
 
