@@ -70,8 +70,6 @@ def get_v1751_tof(file_path, flatten=True):
     ds_min_bin = 180
     ds_max_bin = 280
 
-    run, spill = parse_run_spill(file_path)
-
     branches = [
         'board_id',
         'trigger_time_tag',
@@ -146,3 +144,92 @@ def get_v1751_tof(file_path, flatten=True):
         return np.hstack(tof_array.flat)
 
     return tof_array
+
+def get_v1751_tof_hits(file_path):
+
+    us_min_bin = 140
+    us_max_bin = 240
+    ds_min_bin = 180
+    ds_max_bin = 280
+
+    branches = [
+        'board_id',
+        'trigger_time_tag',
+        'channel_0',
+        'channel_1',
+        'channel_2',
+        'channel_3',
+        ]
+
+    selection = 'board_id == 8'
+    arr = rnp.root2array(file_path, 'DataQuality/v1751', branches, selection)
+    number_entries = arr.size
+    tof_array = []
+
+    ustof1_waveform = arr['channel_0'].astype(dtype=np.int64)
+    ustof2_waveform = arr['channel_1'].astype(dtype=np.int64)
+    dstof1_waveform = arr['channel_2'].astype(dtype=np.int64)
+    dstof2_waveform = arr['channel_3'].astype(dtype=np.int64)
+
+    ustof_hits_array = []
+    dstof_hits_array = []
+
+    for entry in xrange(number_entries):
+
+        ustof1_hits = find_v1751_hits(ustof1_waveform[entry])
+        ustof2_hits = find_v1751_hits(ustof2_waveform[entry])
+        dstof1_hits = find_v1751_hits(dstof1_waveform[entry])
+        dstof2_hits = find_v1751_hits(dstof2_waveform[entry])
+
+        ustof_hits = match_v1751_hits(ustof1_hits, ustof2_hits)
+        dstof_hits = match_v1751_hits(dstof1_hits, dstof2_hits)
+
+        if ustof_hits.size:
+            ustof_hits_array.extend(ustof_hits.tolist())
+
+        if dstof_hits.size:
+            dstof_hits_array.extend(dstof_hits.tolist())
+
+    return ustof_hits_array, dstof_hits_array
+
+if __name__ == '__main__':
+
+    import argparse
+
+    import matplotlib.pyplot as plt
+    from matplotlib.ticker import AutoMinorLocator, MultipleLocator
+
+    parser = argparse.ArgumentParser(description="Plot from ROOT file.")
+    parser.add_argument("file", type=str, help="path to ROOT file")
+    args = parser.parse_args()
+    file_path = args.file
+
+    print "Plotting from {}".format(file_path)
+
+    ustof_hits_array, dstof_hits_array = get_v1751_tof_hits(file_path)
+
+    fig = plt.figure(figsize=(7, 5), dpi=120)
+    ax = fig.add_subplot(1, 1, 1)
+
+    fig.suptitle("V1751 TOF hits")
+
+    ax.hist(ustof_hits_array, bins=1792, range=(-0.5, 1791.5),
+            label="USTOF ({})".format(len(ustof_hits_array)),
+            color='g', edgecolor='none', histtype='stepfilled', alpha=0.75)
+    ax.hist(dstof_hits_array, bins=1792, range=(-0.5, 1791.5),
+            label="DSTOF ({})".format(len(dstof_hits_array)),
+            color='y', edgecolor='none', histtype='stepfilled', alpha=0.75)
+    ax.xaxis.set_minor_locator(AutoMinorLocator())
+    ax.yaxis.set_minor_locator(AutoMinorLocator())
+    ax.tick_params(which='major', length=7)
+    ax.tick_params(which='minor', length=4)
+    ax.set_xlabel("Time bin", fontsize=12)
+    ax.set_ylabel("Entries / time bin", fontsize=12)
+    ax.set_xlim([ 0.0, 1792.0 ])
+
+    ax.legend(bbox_to_anchor=(0.725, 0.95), loc=2, borderaxespad=0,
+              fontsize=8, frameon=False)
+
+    plt.show()
+    plt.close()
+
