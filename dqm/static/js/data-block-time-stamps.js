@@ -4,22 +4,6 @@ $(document).ready(function() {
       width = 960 - margin.left - margin.right,
       height = 500 - margin.top - margin.bottom;
 
-  //var toggle = function (d) {
-  //    // determine if current line is visible 
-  //    var active = d.active ? false : true,
-  //        line_opacity = active ? 0 : 0.5;
-  //        legend_opacity = active ? 0.5 : 1;
-  //    // hide or show the elements based on the id
-  //    d3.select("#line-" + d.name.replace(/\s+/g, ""))
-  //        .transition().duration(100)
-  //        .style("opacity", line_opacity);
-  //    d3.select("#legend-" + d.name.replace(/\s+/g, ""))
-  //        .transition().duration(100)
-  //        .style("opacity", legend_opacity);
-  //    // update whether or not the elements are active
-  //    d.active = active;
-  //}
-
   var mouseover = function (d) {
       var name = d.name;
       d3.selectAll("path.line, .legend.rect, .legend.text")
@@ -55,17 +39,8 @@ $(document).ready(function() {
       .orient("left");
 
   var line = d3.svg.line()
-      //.interpolate("linear")
-      //.interpolate("basis")
-      //.interpolate("monotone")
       .x(function(d) { return x(d.time); })
       .y(function(d) { return y(d.counts); });
-
-  //var area = d3.svg.area()
-  //    .interpolate("basis")
-  //    .x(function(d) { return x(d.time); })
-  //    .y0(height)
-  //    .y1(function(d) { return y(d.counts); });
 
   var svg = d3.select("#data-block-time-stamps").append("svg")
       .attr("width", width + margin.left + margin.right)
@@ -166,16 +141,9 @@ $(document).ready(function() {
       .enter().append("g")
         .attr("class", "device");
 
-    //device.append("path")
-    //    .attr("class", "area")
-    //    //.attr("id", function(d) { return "area-" + d.name.replace(/\s+/g, ""); } )
-    //    .attr("d", function(d) { return area(d.values); })
-    //    .style("fill", function(d) { return color(d.name); });
-
     device.append("path")
         .attr("class", "line")
         .attr("d", function(d) { return line(d.values); })
-        //.style("stroke-dasharray", ("3, 3"))
         .attr("id", function(d) { return "line-" + d.name.replace(/\s+/g, ""); } )
         .style("opacity", 0.5)
         .style("stroke", function(d) { return color(d.name); });
@@ -214,15 +182,10 @@ $(document).ready(function() {
     var selection = svg.selectAll(".device")
         .data(devices);
 
-    //selection.enter().append("g")
-    //    .attr("class", "device");
-
     selection.select("path.line")
         .transition().duration(1000)
         .attr("class", "line")
         .attr("d", function(d) { return line(d.values); });
-
-    selection.exit.remove();
 
     });
   }
