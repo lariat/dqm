@@ -271,6 +271,7 @@ def json():
     elif query == 'v1751-adc-count-histogram':
         board_id = request.args.get('board_id', -1)
         channel = request.args.get('channel', -1)
+        bins = np.arange(0, 1024, 1)
         if int(board_id) < 0 or int(channel) < 0:
             return jsonify(json_data)
         keys = redis.keys(
@@ -280,10 +281,9 @@ def json():
         p = redis.pipeline()
         for key in keys:
             p.lrange(key, 0, -1)
-        bins = np.arange(0, 1024, 1)
         counts = np.sum(np.array(p.execute(), dtype=np.int64), axis=0)
         if type(counts) != np.ndarray:
-            return jsonify(json_data)
+            counts = np.zeros(bins.size, dtype=np.int64)
         data = [
             { 'bin': i, 'count': j } for i, j in zip(bins, counts)
             ]
@@ -340,7 +340,7 @@ def json():
                 np.array(p.execute(), dtype=np.int64), axis=0
                 )
             if type(counts) != np.ndarray:
-                return jsonify(json_data)
+                counts = np.zeros(bins.size, np.int64)
             counts_dict[name] = counts
 
         data = [
@@ -408,7 +408,7 @@ def json():
         bins = np.arange(10, 110, 1)
         counts = np.sum(np.array(p.execute(), dtype=np.int64), axis=0)
         if type(counts) != np.ndarray:
-            return jsonify(json_data)
+            counts = np.zeros(bins.size, np.int64)
         data = [ { 'bin': i, 'count': j } for i, j in zip(bins, counts) ]
         json_data = {
             'query': query,
