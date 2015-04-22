@@ -427,11 +427,6 @@ if mwpc_ok:
     # set keys
     mwpc_data_block_histogram_key = spill_key_prefix + \
         'mwpc/data-block-histogram'
-    # set list of keys for the 16 TDCs of the MWPCs
-    mwpc_tdc_timing_histogram_keys = [
-        spill_key_prefix + 'mwpc/tdc-{}-timing-histogram'.format(tdc_index+1)
-        for tdc_index in xrange(0, 16)
-        ]
     mwpc_tdc_good_hit_channel_histogram_keys = [
         spill_key_prefix + 'mwpc/tdc-{}-good-hit-channel-histogram'
         .format(tdc_index+1)
@@ -455,7 +450,6 @@ if mwpc_ok:
 
     # if keys already exist in redis, delete the existing keys
     redis.delete(mwpc_data_block_histogram_key)
-    redis.delete(*mwpc_tdc_timing_histogram_keys)
     redis.delete(*mwpc_tdc_good_hit_timing_histogram_keys)
     redis.delete(*mwpc_tdc_good_hit_channel_histogram_keys)
     redis.delete(*mwpc_tdc_bad_hit_timing_histogram_keys)
@@ -470,15 +464,6 @@ if mwpc_ok:
     mwpc_data_block_histogram, bin_edges = np.histogram(
         mwpc_time * 1e-6, bins=300, range=(0, 30)
         )
-
-    # get array of relative TDC hit timing
-    hit_time_array = rawdatautils.get_mwpc_tdc_hit_time(file_path)
-
-    # get histograms of relative TDC hit timing for each TDC
-    mwpc_tdc_hit_timing_histograms = [
-        np.histogram(hit_time_array[tdc_index], bins=1024, range=(0, 1024))[0]
-        for tdc_index in xrange(0, 16)
-        ]
 
     # get arrays of good hits and bad hits
     good_hit_array, bad_hit_array = mwpc.cluster.get_hits(file_path)
@@ -506,10 +491,6 @@ if mwpc_ok:
     p.rpush(mwpc_data_block_histogram_key, *mwpc_data_block_histogram)
     p.expire(mwpc_data_block_histogram_key, key_timeout)
     for tdc_index in xrange(0, 16):
-        p.rpush(mwpc_tdc_timing_histogram_keys[tdc_index],
-                *mwpc_tdc_hit_timing_histograms[tdc_index])
-        p.expire(mwpc_tdc_timing_histogram_keys[tdc_index], key_timeout)
-
         # add channel and timing histograms of good and bad hits
         p.rpush(mwpc_tdc_good_hit_channel_histogram_keys[tdc_index],
                 *mwpc_tdc_good_hit_channel_histograms[tdc_index])
