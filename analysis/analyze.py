@@ -495,11 +495,11 @@ if mwpc_ok:
         for tdc_index in xrange(0, 16)
         ]
     mwpc_tdc_bad_hit_channel_histograms = [
-        mwpc_hits_histogram(good_hit_array, tdc_index, 0, 64, (0, 64))
+        mwpc_hits_histogram(bad_hit_array, tdc_index, 0, 64, (0, 64))
         for tdc_index in xrange(0, 16)
         ]
     mwpc_tdc_bad_hit_timing_histograms = [
-        mwpc_hits_histogram(good_hit_array, tdc_index, 1, 1024, (0, 1024))
+        mwpc_hits_histogram(bad_hit_array, tdc_index, 1, 1024, (0, 1024))
         for tdc_index in xrange(0, 16)
         ]
 
