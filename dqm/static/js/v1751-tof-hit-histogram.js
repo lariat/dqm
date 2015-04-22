@@ -121,10 +121,10 @@ $(document).ready(function() {
       .append("text")
         //.attr("class", "label")
         .attr("x", width)
-        .attr("y", 30)
+        .attr("y", 40)
         .attr("text-anchor", "end")
         //.style("font-size", "10px")
-        .text("Time stamp [s]");
+        .html("Sample number; &nbsp;&nbsp;&nbsp; 1 ns/sample; &nbsp;&nbsp;&nbsp; 1.792 &mu;s total");
 
     svg.append("g")
         .attr("class", "y axis")
@@ -134,7 +134,7 @@ $(document).ready(function() {
         .attr("y", 6)
         .attr("dy", ".71em")
         .style("text-anchor", "end")
-        .text("Number of data blocks per 0.1 s");
+        .text("Number of hits per sample");
 
     var device = svg.selectAll(".device")
         .data(devices)
