@@ -147,11 +147,6 @@ def get_v1751_tof(file_path, flatten=True):
 
 def get_v1751_tof_hits(file_path):
 
-    us_min_bin = 140
-    us_max_bin = 240
-    ds_min_bin = 180
-    ds_max_bin = 280
-
     branches = [
         'board_id',
         'trigger_time_tag',

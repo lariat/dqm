@@ -165,6 +165,7 @@ def json():
             }
         return jsonify(json_data)
 
+    # to be removed
     elif query == 'data-block-histogram':
         device = request.args.get('device', None)
         board_id = request.args.get('board_id', -1)
@@ -365,6 +366,38 @@ def json():
             'data': data,
             }
 
+        return jsonify(json_data)
+
+    elif query == 'v1751-tof-hit-histogram':
+        names = ('ustof', 'dstof')
+        bins = np.arange(0, 1792, 1)
+        counts_dict = {}
+        for name in names:
+            keys = redis.keys(key_prefix + \
+                'v1751/{}-hit-histogram'.format(name))
+            p = redis.pipeline()
+            for key in keys:
+                p.lrange(key, 0, -1)
+            counts = np.sum(np.array(p.execute(), dtype=np.int64), axis=0)
+            if type(counts) != np.ndarray:
+                counts = np.zeros(bins.size, np.int64)
+            counts_dict[name] = counts
+        data = [
+            {
+                'bin': x,
+                'USTOF': y,
+                'DSTOF': z
+                }
+                for x, y, z in zip(
+                    bins,
+                    counts_dict['ustof'],
+                    counts_dict['dstof']
+                    )
+            ]
+        json_data = {
+            'query': query,
+            'data': data,
+            }
         return jsonify(json_data)
 
     elif query == 'v1751-tof-histogram':

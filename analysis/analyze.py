@@ -339,6 +339,10 @@ if v1751_ok:
         .format(channel)
         for channel in xrange(8)
         ]
+    v1751_ustof_hit_histogram_key = spill_key_prefix + \
+        'v1751/ustof-hit-histogram'
+    v1751_dstof_hit_histogram_key = spill_key_prefix + \
+        'v1751/dstof-hit-histogram'
     v1751_tof_histogram_key = spill_key_prefix + 'v1751/tof-histogram'
 
     # if keys already exist in redis, delete the existing keys
@@ -346,6 +350,8 @@ if v1751_ok:
     redis.delete(v1751_board_1_data_block_histogram_key)
     redis.delete(v1751_board_0_adc_count_histogram_keys)
     redis.delete(v1751_board_1_adc_count_histogram_keys)
+    redis.delete(v1751_ustof_hit_histogram_key)
+    redis.delete(v1751_dstof_hit_histogram_key)
     redis.delete(v1751_tof_histogram_key)
 
     # get arrays of CAEN V1751 data block time stamps
@@ -357,11 +363,9 @@ if v1751_ok:
 
     # get histogram of CAEN V1751 data block time stamps; units in seconds
     v1751_board_0_data_block_histogram, bin_edges = np.histogram(
-        v1751_board_0_time * 1e-6, bins=300, range=(0, 30)
-        )
+        v1751_board_0_time * 1e-6, bins=300, range=(0, 30))
     v1751_board_1_data_block_histogram, bin_edges = np.histogram(
-        v1751_board_1_time * 1e-6, bins=300, range=(0, 30)
-        )
+        v1751_board_1_time * 1e-6, bins=300, range=(0, 30))
 
     # get histograms of CAEN V1751 ADC count
     v1751_board_0_adc_count_histograms = \
@@ -369,13 +373,22 @@ if v1751_ok:
     v1751_board_1_adc_count_histograms = \
         rawdatautils.get_caen_adc_count_histograms(file_path, board_id=9)
 
+    # get array of TOF hits from CAEN V1751 waveforms
+    v1751_ustof_hit_array, v1751_dstof_hit_array = tofutils.get_v1751_tof_hits(
+        file_path)
+
+    # get histogram of TOF hits from CAEN V1751 waveforms
+    v1751_ustof_hit_histogram = np.histogram(
+        v1751_ustof_hit_array, bins=1792, range=(0, 1792))[0]
+    v1751_dstof_hit_histogram = np.histogram(
+        v1751_dstof_hit_array, bins=1792, range=(0, 1792))[0]
+
     # get array of TOF values from CAEN V1751 waveforms
     v1751_tof_array = tofutils.get_v1751_tof(file_path, flatten=True)
 
     # get histogram of TOF values from CAEN V1751 waveforms
     v1751_tof_histogram, bin_edges = np.histogram(
-        v1751_tof_array, bins=100, range=(10, 110)
-        )
+        v1751_tof_array, bins=100, range=(10, 110))
 
     # send commands in a pipeline to save on round-trip time
     p = redis.pipeline()
@@ -392,6 +405,10 @@ if v1751_ok:
                 *v1751_board_1_adc_count_histograms[channel])
         p.expire(v1751_board_0_adc_count_histogram_keys[channel], key_timeout)
         p.expire(v1751_board_1_adc_count_histogram_keys[channel], key_timeout)
+    p.rpush(v1751_ustof_hit_histogram_key, *v1751_ustof_hit_histogram)
+    p.rpush(v1751_dstof_hit_histogram_key, *v1751_dstof_hit_histogram)
+    p.expire(v1751_ustof_hit_histogram_key, key_timeout)
+    p.expire(v1751_dstof_hit_histogram_key, key_timeout)
     p.rpush(v1751_tof_histogram_key, *v1751_tof_histogram)
     p.expire(v1751_tof_histogram_key, key_timeout)
     p.execute()

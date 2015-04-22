@@ -5,7 +5,16 @@
 
     <div class="container">
 
-      <div class="panel panel-default">
+      <div class="panel panel-primary">
+        <div class="panel-heading">
+          <h3 class="panel-title">V1751 TOF hits</h3>
+        </div>
+        <div class="panel-body text-center">
+          <div id="v1751-tof-hit-histogram"></div>
+        </div>
+      </div>
+
+      <div class="panel panel-primary">
         <div class="panel-heading">
           <h3 class="panel-title">V1751 board 0 ADC count histograms</h3>
         </div>
@@ -21,7 +30,7 @@
         </div>
       </div>
 
-      <div class="panel panel-default">
+      <div class="panel panel-primary">
         <div class="panel-heading">
           <h3 class="panel-title">V1751 board 1 ADC count histograms</h3>
         </div>
@@ -41,6 +50,7 @@
 
 {% include 'scripts.html' %}
 
+    <script src="{{ url_for('static', filename='js/v1751-tof-hit-histogram.js') }}"></script>
     <script src="{{ url_for('static', filename='js/v1751-adc-count-histograms.js') }}"></script>
 
 {% endblock %}
