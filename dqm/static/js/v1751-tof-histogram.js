@@ -188,7 +188,7 @@
 
   $.getJSON($SCRIPT_ROOT + '/json?q=selected-run-spill', function(data) {
     if (data.selected_run == data.latest_run && data.selected_spill == "All") {
-      load_next();
+      setTimeout(load_next, 15000);
     }
   });
 
