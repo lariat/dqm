@@ -303,9 +303,13 @@ def json():
             return jsonify(json_data)
 
         names = ('good', 'bad')
-        bin_range = {
+        bin_max_range = {
             'channel': (0, 64),
             'timing': (0, 1024),
+            }
+        bin_default_range = {
+            'channel': (0, 64),
+            'timing': (200, 520),
             }
         bin_range_ok = False
 
@@ -313,17 +317,13 @@ def json():
             start = int(start)
             stop = int(stop)
             if (start < stop and            
-                bin_range[type_][0] <= start <= bin_range[type_][1] and
-                bin_range[type_][0] <= stop <= bin_range[type_][1]):
+                bin_max_range[type_][0] <= start <= bin_max_range[type_][1] and
+                bin_max_range[type_][0] <= stop <= bin_max_range[type_][1]):
                 bin_range_ok = True
 
         if not bin_range_ok:
-            bin_start_stop = {
-                'channel': (0, 64),
-                'timing': (200, 520),
-                }
-            start = bin_start_stop[type_][0]
-            stop = bin_start_stop[type_][1]
+            start = bin_default_range[type_][0]
+            stop = bin_default_range[type_][1]
 
         bins = np.arange(start, stop, 1)
         counts_dict = {}
