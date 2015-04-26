@@ -41,8 +41,11 @@ parser.add_argument('run', type=str, help="run number")
 parser.add_argument('spill', type=str, help="spill number")
 args = parser.parse_args()
 
-selected_run = args.run
-selected_spill = args.spill
+selected_run = args.run.lstrip('0')
+selected_spill = args.spill.lstrip('0')
+
+sys.stdout.write("Selected run: {}".format(selected_run) + '\n')
+sys.stdout.flush()
 
 redis = Redis()
 
@@ -52,6 +55,9 @@ spills_list_key = run_key_prefix + 'spills'
 spills_list = np.array(redis.lrange(spills_list_key, 0, -1),
                        dtype=np.int64)
 
+if type(spills_list) != np.ndarray:
+    spills_list = np.zeros(1, dtype=np.int64)
+
 number_spills = max(spills_list)
 
 key_prefix = 'dqm/run:{}//'.format(selected_run)
@@ -59,7 +65,7 @@ key_prefix = 'dqm/run:{}//'.format(selected_run)
 plot_subtitle = "Run: ${}$".format(selected_run)
 
 #output_dir = "/Users/johnnyho/repos/dqm/dqm/static/_plots/"
-output_dir = "/lariat/data/users/lariatdqm/plots"
+output_dir = "/lariat/data/users/lariatdqm/plots/"
 output_file_prefix = "run_{}_".format(selected_run)
 
 if selected_spill != 'All':
@@ -96,13 +102,16 @@ def plot_tof():
 
     delta_time = np.repeat(bins, counts)
 
+    if len(delta_time) == 0:
+        delta_time = [ -1 ]
+
     fig = plt.figure(figsize=(9, 6), dpi=120)
     ax = fig.add_subplot(1, 1, 1)
 
     fig.suptitle(plot_title)
 
     y_data, bin_edges, patches = ax.hist(
-            delta_time, bins=101, range=(-0.5, 100.5),
+            delta_time, bins=102, range=(-1.5, 100.5),
             color='g', edgecolor='g', histtype='stepfilled'
             )
 
@@ -179,6 +188,10 @@ def plot_mwpc_tdc(type_, start, stop):
     bin_max_range = {
         'channel': (0, 64),
         'timing': (0, 1024),
+        }
+    bin_default_range = {
+        'channel': (0, 64),
+        'timing': (200, 520),
         }
     bin_default_range = {
         'channel': (0, 64),
@@ -265,19 +278,26 @@ def plot_mwpc_tdc(type_, start, stop):
         )
 
     for i in xrange(len(axes)):
+
+        if len(good_hit_array[i]) == 0 or len(bad_hit_array[i]) == 0:
+            good_hit_array[i].append(start-1)
+            bad_hit_array[i].append(start-1)
+            snr = "N/A"
+        else:
+            snr = len(good_hit_array[i]) / len(bad_hit_array[i])
+            snr = round(snr, 3)
+
         n, bin_edges, patches = axes[i].hist(
             [ good_hit_array[i], bad_hit_array[i] ],
-            bins=bins.size, range=(start, stop), ec='none', color=['g', 'y'],
+            bins=bins.size+1, range=(start-1, stop), ec='none', color=['g', 'y'],
             alpha=0.75, histtype='stepfilled', stacked=True
             )
-
-        snr = len(good_hit_array[i]) / len(bad_hit_array[i])
 
         axes[i].text(0.95, 0.925, "TDC {}".format(i+1),
                      horizontalalignment='right',
                      verticalalignment='top',
                      transform=axes[i].transAxes)
-        axes[i].text(0.95, 0.8, "SNR: {:.2f}".format(snr),
+        axes[i].text(0.95, 0.8, "SNR: {}".format(snr),
                      horizontalalignment='right',
                      verticalalignment='top',
                      transform=axes[i].transAxes)
@@ -340,29 +360,36 @@ def plot_data_blocks():
 
         counts_dict[device] = counts
 
+    device_dict = {}
+
+    for device in device_key:
+        device_dict[device] = np.repeat(bins, counts_dict[device])
+        if len(device_dict[device]) == 0:
+            device_dict[device] = np.array([ bin_start - bin_step ])
+
     fig = plt.figure(figsize=(9, 6), dpi=120)
     ax = fig.add_subplot(1, 1, 1)
 
-    ax.hist(np.repeat(bins, counts_dict['v1740']),
-            bins=number_bins, range=(bin_start, bin_stop),
+    ax.hist(device_dict['v1740'],
+            bins=number_bins+1, range=(bin_start-bin_step, bin_stop),
             label="V1740 ({})".format(np.sum(counts_dict['v1740'])),
             edgecolor='y', color='y',
             alpha=1.0, histtype='stepfilled', linewidth=2)
 
-    ax.hist(np.repeat(bins, counts_dict['v1751']),
-            bins=number_bins, range=(bin_start, bin_stop),
+    ax.hist(device_dict['v1751'],
+            bins=number_bins+1, range=(bin_start-bin_step, bin_stop),
             label="V1751 ({})".format(np.sum(counts_dict['v1751'])),
             edgecolor='g', color='g', histtype='step',
             linewidth=2)
 
-    ax.hist(np.repeat(bins, counts_dict['mwpc']),
-            bins=number_bins, range=(bin_start, bin_stop),
+    ax.hist(device_dict['mwpc'],
+            bins=number_bins+1, range=(bin_start-bin_step, bin_stop),
             label="MWPCs ({})".format(np.sum(counts_dict['mwpc'])),
             edgecolor='b', color='b', histtype='step',
             linestyle=('dashed'))
 
-    ax.hist(np.repeat(bins, counts_dict['wut']),
-            bins=number_bins, range=(bin_start, bin_stop),
+    ax.hist(device_dict['wut'],
+            bins=number_bins+1, range=(bin_start-bin_step, bin_stop),
             label="WUT ({})".format(np.sum(counts_dict['wut'])),
             edgecolor='m', color='m', alpha=0.3, histtype='stepfilled')
 
@@ -402,6 +429,11 @@ def plot_v1751_tof_hits():
     ustof_hits = np.repeat(bins, counts_dict['ustof'])
     dstof_hits = np.repeat(bins, counts_dict['dstof'])
 
+    if ustof_hits.size == 0:
+        ustof_hits = np.array([-1])
+    if dstof_hits.size == 0:
+        dstof_hits = np.array([-1])
+
     plot_title = "V1751 TOF hits\n"
     plot_title += plot_subtitle
 
@@ -410,10 +442,10 @@ def plot_v1751_tof_hits():
 
     fig.suptitle(plot_title)
 
-    ax.hist(ustof_hits, bins=1792, range=(-0.5, 1791.5),
+    ax.hist(ustof_hits, bins=1792+1, range=(-1.5, 1791.5),
             label="USTOF ({})".format(np.sum(counts_dict['ustof'])),
             color='g', edgecolor='none', histtype='stepfilled', alpha=0.75)
-    ax.hist(dstof_hits, bins=1792, range=(-0.5, 1791.5),
+    ax.hist(dstof_hits, bins=1792+1, range=(-1.5, 1791.5),
             label="DSTOF ({})".format(np.sum(counts_dict['dstof'])),
             color='y', edgecolor='none', histtype='stepfilled', alpha=0.75)
     ax.xaxis.set_minor_locator(AutoMinorLocator())
@@ -465,8 +497,11 @@ def plot_v1751_adc_counts(board_id):
     fig.suptitle(plot_title)
 
     for channel_index in xrange(0, 8):
-        axes[channel_index].hist(np.repeat(bins, counts_array[channel_index]),
-                                 bins=1024, range=(0, 1024),
+        x = np.repeat(bins, counts_array[channel_index])
+        if x.size == 0:
+            x = np.array([-1])
+        axes[channel_index].hist(x,
+                                 bins=1024+1, range=(-1, 1024),
                                  color='g', ec='g', histtype='stepfilled')
         axes[channel_index].set_xlim([0, 1024])
         axes[channel_index].locator_params(axis=u'y', nbins=4)
