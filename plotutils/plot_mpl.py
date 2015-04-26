@@ -64,8 +64,8 @@ key_prefix = 'dqm/run:{}//'.format(selected_run)
 
 plot_subtitle = "Run: ${}$".format(selected_run)
 
-#output_dir = "/Users/johnnyho/repos/dqm/dqm/static/_plots/"
-output_dir = "/lariat/data/users/lariatdqm/plots/"
+output_dir = "/Users/johnnyho/repos/dqm/dqm/static/_plots/"
+#output_dir = "/lariat/data/users/lariatdqm/plots/"
 output_file_prefix = "run_{}_".format(selected_run)
 
 if selected_spill != 'All':
@@ -148,7 +148,7 @@ def plot_tof():
         #ax.text(0.5 * ax.get_xlim()[1], 0.2 * ax.get_ylim()[1], "$p$")
 
         x_data = np.arange(0, 101)
-        popt, pcov = curve_fit(double_gaussian, x_data, y_data,
+        popt, pcov = curve_fit(double_gaussian, x_data, y_data[1:],
                                p0=guess)
 
         x_data = np.linspace(0, 101, 1011)
