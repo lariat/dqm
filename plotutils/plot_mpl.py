@@ -47,8 +47,8 @@ args = parser.parse_args()
 selected_run = args.run.lstrip('0')
 selected_spill = args.spill.lstrip('0')
 
-sys.stdout.write("Selected run: {}".format(selected_run) + '\n')
-sys.stdout.flush()
+#sys.stdout.write("Selected run: {}".format(selected_run) + '\n')
+#sys.stdout.flush()
 
 redis = Redis()
 
@@ -82,13 +82,13 @@ else:
 output_prefix = output_dir + output_file_prefix
 
 def create_tar():
-    sys.stdout.write("Creating tar.gz file..." + '\n')
+    #sys.stdout.write("Creating tar.gz file..." + '\n')
     names = glob(output_prefix + '*.png')
     tar = tarfile.open(output_prefix + "plots.tar.gz", 'w:gz')
     for name in names:
         tar.add(name, arcname=os.path.basename(name), recursive=False)
-    tar.list(verbose=True)
-    sys.stdout.flush()
+    #tar.list(verbose=True)
+    #sys.stdout.flush()
     tar.close()
 
 def plot_tof():
@@ -187,7 +187,8 @@ def plot_tof():
                 .format(popt[0]*abs(popt[2]) / (popt[3]*abs(popt[5]))))
 
     except:
-        print "Fit has failed!"
+        #print "Fit has failed!"
+        pass
 
     output_file_path = output_prefix + "tof.png"
     plt.savefig(output_file_path)
