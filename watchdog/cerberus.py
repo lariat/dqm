@@ -203,7 +203,7 @@ class DqmFileHandler(PatternMatchingEventHandler):
         run, spill = parse_dqm(input_file_path)
 
         cmd = [
-            python,
+            'python',
             dqm_root + '/plotutils/plot_mpl.py',
             run,
             'All',
