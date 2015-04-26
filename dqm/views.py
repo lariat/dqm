@@ -1,3 +1,5 @@
+import os
+from glob import glob
 import numpy as np
 from redis import Redis
 from flask import (
@@ -12,7 +14,27 @@ redis = Redis()
 @app.route('/')
 @app.route('/index')
 def index():
-    return render_template('index.html', title='Home')
+    latest_run = redis.get('dqm/latest-run')
+    selected_run = session.get('selected_run', latest_run)
+    mpl_plots_dir = app.static_folder + '/plots'
+    filter_str = 'run_' + selected_run + '*.png'
+    files = []
+    try:
+        lst = [
+            os.path.basename(x) for x in glob(mpl_plots_dir + '/' + filter_str)
+            ]
+    except OSError:
+        pass # ignore errors
+    else:
+        for name in lst:
+            files.append(
+                {
+                    'name': name,
+                    'url': url_for('static',
+                                   filename=os.path.join('plots', name))
+                    }
+                )
+    return render_template('index.html', title='Home', files=files)
 
 @app.route('/v1740')
 def v1740():
@@ -303,9 +325,13 @@ def json():
             return jsonify(json_data)
 
         names = ('good', 'bad')
-        bin_range = {
+        bin_max_range = {
             'channel': (0, 64),
             'timing': (0, 1024),
+            }
+        bin_default_range = {
+            'channel': (0, 64),
+            'timing': (200, 520),
             }
         bin_range_ok = False
 
@@ -313,17 +339,13 @@ def json():
             start = int(start)
             stop = int(stop)
             if (start < stop and            
-                bin_range[type_][0] <= start <= bin_range[type_][1] and
-                bin_range[type_][0] <= stop <= bin_range[type_][1]):
+                bin_max_range[type_][0] <= start <= bin_max_range[type_][1] and
+                bin_max_range[type_][0] <= stop <= bin_max_range[type_][1]):
                 bin_range_ok = True
 
         if not bin_range_ok:
-            bin_start_stop = {
-                'channel': (0, 64),
-                'timing': (200, 520),
-                }
-            start = bin_start_stop[type_][0]
-            stop = bin_start_stop[type_][1]
+            start = bin_default_range[type_][0]
+            stop = bin_default_range[type_][1]
 
         bins = np.arange(start, stop, 1)
         counts_dict = {}
