@@ -200,6 +200,25 @@ class DqmFileHandler(PatternMatchingEventHandler):
                 break
             logger_dqm.info(line.rstrip('\n'))
 
+        run, spill = parse_dqm(input_file_path)
+
+        cmd = [
+            python,
+            dqm_root + '/plotutils/plot_mpl.py',
+            run,
+            'All',
+            ]
+
+        proc = subprocess.Popen(
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+            )
+
+        while True:
+            line = proc.stdout.readline()
+            if not line:
+                break
+            logger_dqm.info(line.rstrip('\n'))
+
     def on_created(self, event):
         self.log(event)
         #self.process(event)
