@@ -17,12 +17,13 @@ def index():
     latest_run = redis.get('dqm/latest-run')
     selected_run = session.get('selected_run', latest_run)
     mpl_plots_dir = app.static_folder + '/plots'
-    filter_str = 'run_' + selected_run + '*.png'
+    filter_str = 'run_' + selected_run + '*.*'
     files = []
     try:
         lst = [
             os.path.basename(x) for x in glob(mpl_plots_dir + '/' + filter_str)
             ]
+        #lst.sort()
     except OSError:
         pass # ignore errors
     else:

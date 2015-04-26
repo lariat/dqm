@@ -3,6 +3,9 @@ import os
 import sys
 import argparse
 import shutil
+import tarfile
+from glob import glob
+import time
 
 import numpy as np
 import root_numpy as rnp
@@ -64,8 +67,8 @@ key_prefix = 'dqm/run:{}//'.format(selected_run)
 
 plot_subtitle = "Run: ${}$".format(selected_run)
 
-output_dir = "/Users/johnnyho/repos/dqm/dqm/static/_plots/"
-#output_dir = "/lariat/data/users/lariatdqm/plots/"
+#output_dir = "/Users/johnnyho/repos/dqm/dqm/static/_plots/"
+output_dir = "/lariat/data/users/lariatdqm/plots/"
 output_file_prefix = "run_{}_".format(selected_run)
 
 if selected_spill != 'All':
@@ -77,6 +80,16 @@ else:
     plot_subtitle += "; Total number of spills: ${}$".format(number_spills)
 
 output_prefix = output_dir + output_file_prefix
+
+def create_tar():
+    sys.stdout.write("Creating tar.gz file..." + '\n')
+    names = glob(output_prefix + '*.png')
+    tar = tarfile.open(output_prefix + "plots.tar.gz", 'w:gz')
+    for name in names:
+        tar.add(name, arcname=os.path.basename(name), recursive=False)
+    tar.list(verbose=True)
+    sys.stdout.flush()
+    tar.close()
 
 def plot_tof():
 
@@ -526,3 +539,5 @@ plot_data_blocks()
 plot_v1751_tof_hits()
 plot_v1751_adc_counts(0)
 plot_v1751_adc_counts(1)
+create_tar()
+
