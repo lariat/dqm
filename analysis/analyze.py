@@ -173,7 +173,7 @@ def mwpc_hits_histogram(hit_array, tdc_index, column, bins, bins_range):
             range=bins_range
             )[0]
     except:
-        histogram = np.zeros(16, dtype=np.int64)
+        histogram = np.zeros(bins, dtype=np.int64)
     return histogram
 
 parser = argparse.ArgumentParser(description="Analyze from ROOT file.")
