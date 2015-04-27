@@ -9,6 +9,9 @@ import time
 
 import numpy as np
 import root_numpy as rnp
+import matplotlib
+# force matplotlib to not use any X Window backend
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.ticker import AutoMinorLocator, MultipleLocator
 from scipy.optimize import curve_fit
