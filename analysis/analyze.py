@@ -379,9 +379,9 @@ if v1751_ok:
 
     # get histogram of TOF hits from CAEN V1751 waveforms
     v1751_ustof_hit_histogram = np.histogram(
-        v1751_ustof_hit_array, bins=1792, range=(0, 1792))[0]
+        v1751_ustof_hit_array, bins=7168, range=(0, 7168))[0]
     v1751_dstof_hit_histogram = np.histogram(
-        v1751_dstof_hit_array, bins=1792, range=(0, 1792))[0]
+        v1751_dstof_hit_array, bins=7168, range=(0, 7168))[0]
 
     # get array of TOF values from CAEN V1751 waveforms
     v1751_tof_array = tofutils.get_v1751_tof(file_path, flatten=True)

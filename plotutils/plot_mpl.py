@@ -430,7 +430,7 @@ def plot_data_blocks():
 def plot_v1751_tof_hits():
 
     names = ('ustof', 'dstof')
-    bins = np.arange(0, 1792, 1)
+    bins = np.arange(0, 7168, 1)
     counts_dict = {}
     for name in names:
         keys = redis.keys(key_prefix + \
@@ -459,10 +459,10 @@ def plot_v1751_tof_hits():
 
     fig.suptitle(plot_title)
 
-    ax.hist(ustof_hits, bins=1792+1, range=(-1.5, 1791.5),
+    ax.hist(ustof_hits, bins=7168+1, range=(-1.0, 7168),
             label="USTOF ({})".format(np.sum(counts_dict['ustof'])),
             color='g', edgecolor='none', histtype='stepfilled', alpha=0.75)
-    ax.hist(dstof_hits, bins=1792+1, range=(-1.5, 1791.5),
+    ax.hist(dstof_hits, bins=7168+1, range=(-1.0, 7168),
             label="DSTOF ({})".format(np.sum(counts_dict['dstof'])),
             color='y', edgecolor='none', histtype='stepfilled', alpha=0.75)
     ax.xaxis.set_minor_locator(AutoMinorLocator())
@@ -471,14 +471,14 @@ def plot_v1751_tof_hits():
     ax.tick_params(which='minor', length=4)
     ax.set_xlabel("Time bin", fontsize=12)
     ax.set_ylabel("Entries / time bin", fontsize=12)
-    ax.set_xlim([ 0.0, 1792.0 ])
+    ax.set_xlim([ 0.0, 7168.0 ])
 
     ax.legend(bbox_to_anchor=(0.725, 0.95), loc=2, borderaxespad=0,
               fontsize=8, frameon=False)
 
     output_file_path = output_prefix + "v1751_tof_hits.png"
     plt.savefig(output_file_path)
-    ax.set_xlim([0, 450])
+    ax.set_xlim([1150, 1450])
     output_file_path = output_prefix + "v1751_tof_hits_zoomed.png"
     plt.savefig(output_file_path)
     #plt.show()

@@ -393,7 +393,7 @@ def json():
 
     elif query == 'v1751-tof-hit-histogram':
         names = ('ustof', 'dstof')
-        bins = np.arange(0, 1792, 1)
+        bins = np.arange(0, 7168, 1)
         counts_dict = {}
         for name in names:
             keys = redis.keys(key_prefix + \

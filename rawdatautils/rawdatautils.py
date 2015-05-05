@@ -48,7 +48,7 @@ def get_caen_adc_count_histograms(file_path, board_id):
     elif board_id in (8, 9):
         tree_name = 'DataQuality/v1751'
         number_channels = 8
-        number_samples = 1792
+        number_samples = 7168
         max_adc_count = 1024
     else:
         print "Not a valid board ID!"
