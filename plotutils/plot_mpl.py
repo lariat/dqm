@@ -17,6 +17,20 @@ from matplotlib.ticker import AutoMinorLocator, MultipleLocator
 from scipy.optimize import curve_fit
 from redis import Redis
 
+import inspect
+cmd_subdir = os.path.realpath(
+    os.path.abspath(
+        os.path.join(
+            os.path.split(inspect.getfile( inspect.currentframe() ))[0],
+            '..'
+            )
+        )
+    )
+if cmd_subdir not in sys.path:
+    sys.path.insert(0, cmd_subdir)
+
+from constants import *
+
 #def clean_dir(folder):
 #    for the_file in os.listdir(folder):
 #        file_path = os.path.join(folder, the_file)
@@ -430,7 +444,7 @@ def plot_data_blocks():
 def plot_v1751_tof_hits():
 
     names = ('ustof', 'dstof')
-    bins = np.arange(0, 7168, 1)
+    bins = np.arange(0, V1751_NUMBER_SAMPLES, 1)
     counts_dict = {}
     for name in names:
         keys = redis.keys(key_prefix + \
@@ -459,10 +473,12 @@ def plot_v1751_tof_hits():
 
     fig.suptitle(plot_title)
 
-    ax.hist(ustof_hits, bins=7168+1, range=(-1.0, 7168),
+    ax.hist(ustof_hits, bins=V1751_NUMBER_SAMPLES+1,
+            range=(-1.0, V1751_NUMBER_SAMPLES),
             label="USTOF ({})".format(np.sum(counts_dict['ustof'])),
             color='g', edgecolor='none', histtype='stepfilled', alpha=0.75)
-    ax.hist(dstof_hits, bins=7168+1, range=(-1.0, 7168),
+    ax.hist(dstof_hits, bins=V1751_NUMBER_SAMPLES+1,
+            range=(-1.0, V1751_NUMBER_SAMPLES),
             label="DSTOF ({})".format(np.sum(counts_dict['dstof'])),
             color='y', edgecolor='none', histtype='stepfilled', alpha=0.75)
     ax.xaxis.set_minor_locator(AutoMinorLocator())
@@ -471,14 +487,14 @@ def plot_v1751_tof_hits():
     ax.tick_params(which='minor', length=4)
     ax.set_xlabel("Time bin", fontsize=12)
     ax.set_ylabel("Entries / time bin", fontsize=12)
-    ax.set_xlim([ 0.0, 7168.0 ])
+    ax.set_xlim([ 0, V1751_NUMBER_SAMPLES ])
 
     ax.legend(bbox_to_anchor=(0.725, 0.95), loc=2, borderaxespad=0,
               fontsize=8, frameon=False)
 
     output_file_path = output_prefix + "v1751_tof_hits.png"
     plt.savefig(output_file_path)
-    ax.set_xlim([1150, 1450])
+    ax.set_xlim([2500, 3000])
     output_file_path = output_prefix + "v1751_tof_hits_zoomed.png"
     plt.savefig(output_file_path)
     #plt.show()

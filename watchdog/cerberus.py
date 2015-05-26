@@ -17,6 +17,7 @@ dqm_root = '/home/nfs/lariatdqm/local/dqm'
 daq_file_dir = '/daqdata/dropbox'
 daq_watch_file_dir = '/lariat/data/users/lariatdqm/daqdata'
 dqm_file_dir = '/lariat/data/users/lariatdqm/dqm'
+event_viewer_file_path = '/lariat/data/users/lariatdqm/EventViewer/latest_dqm_file_path.txt'
 
 format = '%(asctime)s %(name)-12s %(levelname)-8s %(message)s'
 date_format = '%Y-%m-%d %H:%M:%S'
@@ -199,6 +200,10 @@ class DqmFileHandler(PatternMatchingEventHandler):
             if not line:
                 break
             logger_dqm.info(line.rstrip('\n'))
+
+        event_viewer_file = open(event_viewer_file_path, 'w')
+        event_viewer_file.write(input_file_path)
+        event_viewer_file.close()
 
         run, spill = parse_dqm(input_file_path)
 

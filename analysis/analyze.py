@@ -30,6 +30,7 @@ cmd_subdir = os.path.realpath(
 if cmd_subdir not in sys.path:
     sys.path.insert(0, cmd_subdir)
 
+from constants import *
 import rawdatautils
 import tofutils
 from trackutils import mwpc
@@ -199,11 +200,8 @@ except:
 # get run number, spill number, and time stamp
 run_number, spill_number, time_stamp = get_spill_info(file_path)
 
-# set redis key timeout to 2 weeks for now
-#key_timeout = 604800  # each count is 1 second
-
-# set redis key timeout to 4 weeks
-key_timeout = 2419200  # each count is 1 second
+# set redis key timeout to 0.5 weeks
+key_timeout = 604800 / 2  # each count is 1 second
 
 # set redis key prefix
 run_key_prefix = 'dqm/run:{}//'.format(run_number)
@@ -379,9 +377,11 @@ if v1751_ok:
 
     # get histogram of TOF hits from CAEN V1751 waveforms
     v1751_ustof_hit_histogram = np.histogram(
-        v1751_ustof_hit_array, bins=7168, range=(0, 7168))[0]
+        v1751_ustof_hit_array, bins=V1751_NUMBER_SAMPLES,
+        range=(0, V1751_NUMBER_SAMPLES))[0]
     v1751_dstof_hit_histogram = np.histogram(
-        v1751_dstof_hit_array, bins=7168, range=(0, 7168))[0]
+        v1751_dstof_hit_array, bins=V1751_NUMBER_SAMPLES,
+        range=(0, V1751_NUMBER_SAMPLES))[0]
 
     # get array of TOF values from CAEN V1751 waveforms
     v1751_tof_array = tofutils.get_v1751_tof(file_path, flatten=True)

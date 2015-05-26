@@ -4,6 +4,20 @@ import sys
 import numpy as np
 import root_numpy as rnp
 
+#import inspect
+#cmd_subdir = os.path.realpath(
+#    os.path.abspath(
+#        os.path.join(
+#            os.path.split(inspect.getfile( inspect.currentframe() ))[0],
+#            '..'
+#            )
+#        )
+#    )
+#if cmd_subdir not in sys.path:
+#    sys.path.insert(0, cmd_subdir)
+
+from constants import *
+
 def parse_run_spill(file_path):
     token_list = file_path.split("_")
     run = token_list[-3]
@@ -41,7 +55,7 @@ def find_v1751_hits(logic):
         np.roll((logic_gradient > threshold1), 1) &
         (logic_gradient < threshold2)
         )
-    time_bins = np.arange(0, 7168)
+    time_bins = np.arange(0, V1751_NUMBER_SAMPLES)
     hits = time_bins[flag]
     return hits
 
@@ -65,10 +79,10 @@ def match_v1751_hits(hits1, hits2):
 
 def get_v1751_tof(file_path, flatten=True):
 
-    us_min_bin = 1150
-    us_max_bin = 1450
-    ds_min_bin = 1150
-    ds_max_bin = 1450
+    us_min_bin = 2000
+    us_max_bin = 4000
+    ds_min_bin = 2000
+    ds_max_bin = 4000
 
     branches = [
         'board_id',
@@ -208,10 +222,12 @@ if __name__ == '__main__':
 
     fig.suptitle("V1751 TOF hits")
 
-    ax.hist(ustof_hits_array, bins=7168, range=(0, 7168),
+    ax.hist(ustof_hits_array, bins=V1751_NUMBER_SAMPLES,
+            range=(0, V1751_NUMBER_SAMPLES),
             label="USTOF ({})".format(len(ustof_hits_array)),
             color='g', edgecolor='none', histtype='stepfilled', alpha=0.75)
-    ax.hist(dstof_hits_array, bins=7168, range=(0, 7168),
+    ax.hist(dstof_hits_array, bins=V1751_NUMBER_SAMPLES,
+            range=(0, V1751_NUMBER_SAMPLES),
             label="DSTOF ({})".format(len(dstof_hits_array)),
             color='y', edgecolor='none', histtype='stepfilled', alpha=0.75)
     ax.xaxis.set_minor_locator(AutoMinorLocator())
@@ -220,7 +236,7 @@ if __name__ == '__main__':
     ax.tick_params(which='minor', length=4)
     ax.set_xlabel("Time bin", fontsize=12)
     ax.set_ylabel("Entries / time bin", fontsize=12)
-    ax.set_xlim([ 0.0, 7168.0 ])
+    ax.set_xlim([ 0, V1751_NUMBER_SAMPLES ])
 
     ax.legend(bbox_to_anchor=(0.725, 0.95), loc=2, borderaxespad=0,
               fontsize=8, frameon=False)

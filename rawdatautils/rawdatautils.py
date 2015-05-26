@@ -1,6 +1,8 @@
 import numpy as np
 import root_numpy as rnp
 
+from constants import *
+
 def get_caen_trigger_time_tag(file_path, board_id):
     """
     Returns the trigger time tag of the CAEN board. Each
@@ -43,12 +45,12 @@ def get_caen_adc_count_histograms(file_path, board_id):
     if board_id in xrange(0, 8):
         tree_name = 'DataQuality/v1740'
         number_channels = 64
-        number_samples = 1536
+        number_samples = V1740_NUMBER_SAMPLES
         max_adc_count = 4096
     elif board_id in (8, 9):
         tree_name = 'DataQuality/v1751'
         number_channels = 8
-        number_samples = 7168
+        number_samples = V1751_NUMBER_SAMPLES
         max_adc_count = 1024
     else:
         print "Not a valid board ID!"
