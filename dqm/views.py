@@ -512,11 +512,11 @@ def test():
     return query
 
 # Run Plots summary page
-@app.route('/runPlots', methods=['GET', 'POST'])
+@app.route('/runPlots')
 def runPlots():
-    session['run'] = request.args.get('RUN')
-    reply = "<HTML><HEAD><LINK TYPE=\"text/css\" rel=\"stylesheet\" href=\"/static/css/runStyle.css\"></HEAD>\n<BODY><B>DQM Plots for Run <A HREF=http://lariat-wbm.fnal.gov/wbm/servlet/LariatRunSummary?RUN="+session['run']+">"+session['run']+"</B><BR>\n"
-    for file in glob("/home/nfs/lariatdqm/local/dqm/dqm/static/plots/run_"+session['run']+"*"): 
+    run = request.args.get('RUN', '0')
+    reply = "<HTML><HEAD><LINK TYPE=\"text/css\" rel=\"stylesheet\" href=\"/static/css/runStyle.css\"></HEAD>\n<BODY><B>DQM Plots for Run <A HREF=http://lariat-wbm.fnal.gov/wbm/servlet/LariatRunSummary?RUN="+run+">"+run+"</B><BR>\n"
+    for file in glob("/home/nfs/lariatdqm/local/dqm/dqm/static/plots/run_"+run+"*"): 
       reply += file.replace("/home/nfs/lariatdqm/local/dqm/dqm", "<A HREF=")+">"+os.path.basename(file)+"</A><BR>\n"
     reply += "</BODY></HTML>\n"
     return reply
