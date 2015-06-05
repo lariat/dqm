@@ -79,10 +79,10 @@ def match_v1751_hits(hits1, hits2):
 
 def get_v1751_tof(file_path, flatten=True):
 
-    us_min_bin = 2000
-    us_max_bin = 4000
-    ds_min_bin = 2000
-    ds_max_bin = 4000
+    us_min_bin = 8000
+    us_max_bin = 9000
+    ds_min_bin = 8000
+    ds_max_bin = 9000
 
     branches = [
         'board_id',

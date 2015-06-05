@@ -124,7 +124,7 @@ $(document).ready(function() {
         .attr("y", 40)
         .attr("text-anchor", "end")
         //.style("font-size", "10px")
-        .html("Sample number; &nbsp;&nbsp;&nbsp; 1 ns/sample; &nbsp;&nbsp;&nbsp; 7.618 &mu;s total");
+        .html("Sample number; &nbsp;&nbsp;&nbsp; 1 ns/sample; &nbsp;&nbsp;&nbsp; 14.336 &mu;s total");
 
     svg.append("g")
         .attr("class", "y axis")

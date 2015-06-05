@@ -494,7 +494,7 @@ def plot_v1751_tof_hits():
 
     output_file_path = output_prefix + "v1751_tof_hits.png"
     plt.savefig(output_file_path)
-    ax.set_xlim([2500, 3000])
+    ax.set_xlim([8000, 9000])
     output_file_path = output_prefix + "v1751_tof_hits_zoomed.png"
     plt.savefig(output_file_path)
     #plt.show()
