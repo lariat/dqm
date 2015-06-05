@@ -504,3 +504,20 @@ def cubism():
 def random():
     data = list(np.random.randint(5, 10, 960))
     return jsonify(values=data)
+
+# Test page
+@app.route('/test')
+def test():
+    query = request.args.get('q', "Hello, Bill!")
+    return query
+
+# Run Plots summary page
+@app.route('/runPlots', methods=['GET', 'POST'])
+def runPlots():
+    session['run'] = request.args.get('RUN')
+    reply = "<HTML><HEAD><LINK TYPE=\"text/css\" rel=\"stylesheet\" href=\"/static/css/runStyle.css\"></HEAD>\n<BODY><B>DQM Plots for Run <A HREF=http://lariat-wbm.fnal.gov/wbm/servlet/LariatRunSummary?RUN="+session['run']+">"+session['run']+"</B><BR>\n"
+    for file in glob("/home/nfs/lariatdqm/local/dqm/dqm/static/plots/run_"+session['run']+"*"): 
+      reply += file.replace("/home/nfs/lariatdqm/local/dqm/dqm", "<A HREF=")+">"+os.path.basename(file)+"</A><BR>\n"
+    reply += "</BODY></HTML>\n"
+    return reply
+
