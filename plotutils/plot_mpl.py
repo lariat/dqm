@@ -552,6 +552,16 @@ def plot_v1751_adc_counts(board_id):
     #plt.show()
     plt.close()
 
+# attempt connection to redis server
+redis = Redis()
+try:
+    redis.setex('hello', 1, 1)
+except:
+    exit_status = 10
+    print "plot_mpl: No connection to redis server"
+    print "plot_mpl: Exiting with exit status {}".format(exit_status)
+    sys.exit(exit_status)
+
 plot_tof()
 plot_mwpc_tdc('timing', 200, 520)
 plot_mwpc_tdc('channel', 0, 64)
