@@ -201,7 +201,10 @@ except:
 run_number, spill_number, time_stamp = get_spill_info(file_path)
 
 # set redis key timeout to 0.25 weeks
-key_timeout = 604800 / 4  # each count is 1 second
+#key_timeout = 604800 / 4  # each count is 1 second
+
+# set redis key timeout to 2 days
+key_timeout = 172800  # each count is 1 second
 
 # set redis key prefix
 run_key_prefix = 'dqm/run:{}//'.format(run_number)
