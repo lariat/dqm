@@ -11,6 +11,8 @@ from logging.handlers import RotatingFileHandler
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 
+import psutil
+
 log_dir = '/lariat/data/users/lariatdqm/log/watchdog'
 log_file_path = log_dir + '/proc.log'
 dqm_root = '/home/nfs/lariatdqm/local/dqm'
@@ -18,6 +20,7 @@ daq_file_dir = '/daqdata/dropbox'
 daq_watch_file_dir = '/lariat/data/users/lariatdqm/daqdata'
 dqm_file_dir = '/lariat/data/users/lariatdqm/dqm'
 event_viewer_file_path = '/lariat/data/users/lariatdqm/EventViewer/latest_dqm_file_path.txt'
+static_plotter_path = dqm_root + '/plotutils/plot_mpl.py'
 
 format = '%(asctime)s %(name)-12s %(levelname)-8s %(message)s'
 date_format = '%Y-%m-%d %H:%M:%S'
@@ -207,12 +210,19 @@ class DqmFileHandler(PatternMatchingEventHandler):
 
         run, spill = parse_dqm(input_file_path)
 
-        proc = subprocess.Popen([
-            'python',
-            dqm_root + '/plotutils/plot_mpl.py',
-            run,
-            'All',
-            ])
+        plot = True
+
+        for process in psutil.process_iter():
+            if static_plotter_path in process.cmdline():
+                plot = False
+
+        if plot:
+            proc = subprocess.Popen([
+                'python',
+                static_plotter_path,
+                run,
+                'All',
+                ])
 
     def on_created(self, event):
         self.log(event)
