@@ -19,7 +19,8 @@ def index():
     latest_run = redis.get('dqm/latest-run')
     selected_run = session.get('selected_run', latest_run)
     mpl_plots_dir = app.static_folder + '/plots'
-    filter_str = 'run_' + selected_run + '*.*'
+    filter_str = 'run_' + str(selected_run) + '*.*'
+#    filter_str = 'run_' + selected_run + '*.*'
     files = []
     try:
         lst = [
@@ -131,6 +132,7 @@ def select_run_spill():
     session['selected_run'] = request.form.get('run-selection', latest_run)
     session['selected_spill'] = request.form.get('spill-selection', 'All')
     response = make_response(redirect(url_for(redirect_to)))
+    #response.headers['Access-Control-Allow-Origin'] = '*'
     return response
 
 @app.route('/json')
@@ -478,6 +480,7 @@ def session_form():
     if request.method == 'POST':
         session['string'] = request.form.get('string', 'hello!')
         response = make_response(redirect(url_for('session_')))
+        #response.headers['Access-Control-Allow-Origin'] = '*'
         return response
     return 'goodbye!'
 
