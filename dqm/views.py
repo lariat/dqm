@@ -11,6 +11,8 @@ from dqm import app
 
 from constants import *
 
+logger = open('/lariat/data/users/lariatdqm/log/dqm.log','a')
+
 redis = Redis()
 
 @app.route('/')
@@ -20,7 +22,6 @@ def index():
     selected_run = session.get('selected_run', latest_run)
     mpl_plots_dir = app.static_folder + '/plots'
     filter_str = 'run_' + str(selected_run) + '*.*'
-#    filter_str = 'run_' + selected_run + '*.*'
     files = []
     try:
         lst = [
@@ -128,6 +129,8 @@ def log():
 @app.route('/select-run-spill', methods=['GET', 'POST'])
 def select_run_spill():
     latest_run = int(redis.get('dqm/latest-run'))
+    logger.write("Run: "+str(latest_run))
+    logger.flush()
     redirect_to = request.form.get('redirect-to', 'index')
     session['selected_run'] = request.form.get('run-selection', latest_run)
     session['selected_spill'] = request.form.get('spill-selection', 'All')
